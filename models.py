@@ -14,6 +14,10 @@ class Admin(UserMixin, db.Model):
     nom = db.Column(db.String(100), nullable=False)
     prenom = db.Column(db.String(100), nullable=False)
     is_active = db.Column(db.Boolean, default=True)
+    is_superadmin = db.Column(db.Boolean, default=False)
+    avatar_filename = db.Column(db.String(200), nullable=True)
+    role = db.Column(db.String(50), default='Admin')
+    permissions = db.Column(db.Text)  # JSON string for permissions
     date_creation = db.Column(db.DateTime, default=datetime.utcnow)
     derniere_connexion = db.Column(db.DateTime)
     

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Page non trouvée - {{ super() }}{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="text-center">
+                    <div class="error-page">
+                        <h1 class="display-1 text-primary">404</h1>
+                        <h2 class="mb-4">Page non trouvée</h2>
+                        <p class="lead mb-4">
+                            Désolé, la page que vous recherchez n'existe pas ou a été déplacée.
+                        </p>
+                        <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                                <i class="fas fa-home me-2"></i>Retour à l'accueil
+                            </a>
+                            <a href="{{ url_for('formations') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-graduation-cap me-2"></i>Nos formations
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.error-page h1 {
+    font-size: 8rem;
+    font-weight: 900;
+    opacity: 0.3;
+}
+</style>
+{% endblock %}
