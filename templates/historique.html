@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+
+{% block title %}Historique - {{ super() }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="section bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-5 mb-3">Notre historique</h1>
+                <p class="lead">Découvrez l'histoire et l'évolution de l'Institut National de Formation Agricole de Tové</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mission et Vision -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h3 class="card-title text-primary">
+                            <i class="fas fa-bullseye me-2"></i>Notre mission
+                        </h3>
+                        <p class="card-text lead">
+                            {{ config.mission if config and config.mission else "Former des professionnels compétents dans les domaines de l'agriculture moderne, de l'élevage et du développement rural, capables de contribuer efficacement au développement socio-économique du Togo et de l'Afrique de l'Ouest." }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h3 class="card-title text-primary">
+                            <i class="fas fa-eye me-2"></i>Notre vision
+                        </h3>
+                        <p class="card-text lead">
+                            {{ config.vision if config and config.vision else "Être l'institut de formation agricole de référence en Afrique de l'Ouest, reconnu pour l'excellence de ses programmes, l'innovation pédagogique et l'impact positif de ses diplômés sur le secteur agricole." }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Chronologie -->
+<section class="section bg-light-green">
+    <div class="container">
+        <h2 class="section-title">Chronologie de l'INFA</h2>
+        
+        <div class="timeline">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <!-- 2014 - Création -->
+                    <div class="timeline-item mb-5">
+                        <div class="row align-items-center">
+                            <div class="col-md-3 text-center">
+                                <div class="timeline-date">
+                                    <span class="badge bg-primary fs-5 px-3 py-2">2014</span>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-primary">Création de l'INFA</h5>
+                                        <p class="card-text">
+                                            Création officielle de l'Institut National de Formation Agricole de Tové 
+                                            par décret gouvernemental, dans le cadre de la modernisation du secteur 
+                                            agricole togolais et de la formation de ressources humaines qualifiées.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2015 - Infrastructure -->
+                    <div class="timeline-item mb-5">
+                        <div class="row align-items-center">
+                            <div class="col-md-3 text-center">
+                                <div class="timeline-date">
+                                    <span class="badge bg-secondary fs-5 px-3 py-2">2015</span>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-primary">Construction des infrastructures</h5>
+                                        <p class="card-text">
+                                            Début de la construction des infrastructures modernes : salles de classe, 
+                                            laboratoires, ateliers techniques et exploitations agricoles. 
+                                            Acquisition des premiers équipements pédagogiques.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2016 - Ouverture -->
+                    <div class="timeline-item mb-5">
+                        <div class="row align-items-center">
+                            <div class="col-md-3 text-center">
+                                <div class="timeline-date">
+                                    <span class="badge bg-success fs-5 px-3 py-2">2016</span>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-primary">Ouverture officielle</h5>
+                                        <p class="card-text">
+                                            Ouverture officielle de l'INFA avec la première promotion de 120 étudiants 
+                                            répartis dans 5 filières de formation. Recrutement de l'équipe pédagogique 
+                                            et administrative initiale.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2018 - Partenariats -->
+                    <div class="timeline-item mb-5">
+                        <div class="row align-items-center">
+                            <div class="col-md-3 text-center">
+                                <div class="timeline-date">
+                                    <span class="badge bg-warning fs-5 px-3 py-2">2018</span>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-primary">Développement des partenariats</h5>
+                                        <p class="card-text">
+                                            Signature de partenariats avec des institutions internationales de formation 
+                                            agricole et des organisations de développement. Première promotion diplômée 
+                                            avec un taux d'insertion professionnelle de 85%.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2020 - Extension -->
+                    <div class="timeline-item mb-5">
+                        <div class="row align-items-center">
+                            <div class="col-md-3 text-center">
+                                <div class="timeline-date">
+                                    <span class="badge bg-info fs-5 px-3 py-2">2020</span>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-primary">Extension et modernisation</h5>
+                                        <p class="card-text">
+                                            Extension des infrastructures avec de nouveaux laboratoires et ateliers. 
+                                            Introduction de nouvelles technologies agricoles et développement de 
+                                            l'enseignement à distance pendant la pandémie.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2022 - Reconnaissance -->
+                    <div class="timeline-item mb-5">
+                        <div class="row align-items-center">
+                            <div class="col-md-3 text-center">
+                                <div class="timeline-date">
+                                    <span class="badge bg-dark fs-5 px-3 py-2">2022</span>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-primary">Reconnaissance internationale</h5>
+                                        <p class="card-text">
+                                            Reconnaissance de l'INFA comme centre d'excellence en formation agricole 
+                                            par l'Union Africaine. Lancement de programmes de formation continue 
+                                            pour les professionnels du secteur.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2024 - Aujourd'hui -->
+                    <div class="timeline-item">
+                        <div class="row align-items-center">
+                            <div class="col-md-3 text-center">
+                                <div class="timeline-date">
+                                    <span class="badge bg-primary fs-5 px-3 py-2">2024</span>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="card border-primary">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-primary">INFA aujourd'hui</h5>
+                                        <p class="card-text">
+                                            Aujourd'hui, l'INFA forme plus de 500 étudiants par an dans 15 filières 
+                                            différentes. L'institut continue d'innover avec l'intégration de 
+                                            l'agriculture numérique et des pratiques durables.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Historique détaillé -->
+{% if config and config.historique %}
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="text-primary mb-4">Histoire détaillée</h3>
+                        <div class="content">
+                            {{ config.historique|safe }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Chiffres clés -->
+<section class="section bg-primary text-white">
+    <div class="container">
+        <h2 class="section-title text-white">L'INFA en chiffres</h2>
+        <div class="row text-center">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-item">
+                    <h3 class="display-4 mb-2" data-counter="10">10</h3>
+                    <p class="lead">Années d'expérience</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-item">
+                    <h3 class="display-4 mb-2" data-counter="500">500+</h3>
+                    <p class="lead">Diplômés</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-item">
+                    <h3 class="display-4 mb-2" data-counter="15">15</h3>
+                    <p class="lead">Formations proposées</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-item">
+                    <h3 class="display-4 mb-2" data-counter="85">85%</h3>
+                    <p class="lead">Taux d'insertion</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Perspectives d'avenir -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h3>Perspectives d'avenir</h3>
+                <p class="lead mb-4">
+                    L'INFA continue de se développer pour répondre aux défis de l'agriculture moderne 
+                    et du développement durable. Nos projets futurs incluent l'expansion des programmes 
+                    de recherche, le développement de nouvelles filières et le renforcement des 
+                    partenariats internationaux.
+                </p>
+                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                    <a href="{{ url_for('formations') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-graduation-cap me-2"></i>Découvrir nos formations
+                    </a>
+                    <a href="{{ url_for('contact') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-envelope me-2"></i>Nous contacter
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.timeline-item {
+    position: relative;
+}
+
+.timeline-date {
+    position: relative;
+}
+
+.timeline-date::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -20px;
+    width: 20px;
+    height: 2px;
+    background: var(--primary-green);
+    transform: translateY(-50%);
+}
+
+@media (max-width: 768px) {
+    .timeline-date::after {
+        display: none;
+    }
+}
+
+.stat-item h3 {
+    color: white;
+    font-weight: bold;
+}
+
+.content {
+    line-height: 1.8;
+    font-size: 1.1rem;
+}
+
+.content p {
+    margin-bottom: 1.5rem;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des éléments de la timeline
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.style.opacity = '0';
+                    entry.target.style.transform = 'translateX(-30px)';
+                    entry.target.style.transition = 'all 0.6s ease';
+                    
+                    setTimeout(() => {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateX(0)';
+                    }, 50);
+                }, index * 200);
+                
+                observer.unobserve(entry.target);
+            }
+        });
+    });
+    
+    timelineItems.forEach(item => {
+        observer.observe(item);
+    });
+});
+</script>
+{% endblock %}

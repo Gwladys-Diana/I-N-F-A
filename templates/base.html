@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ site_config.nom_institut }}{% endblock %}</title>
+    
+    <!-- Meta tags -->
+    <meta name="description" content="{% block description %}Institut National de Formation Agricole de Tové - Formation agricole de qualité au Togo{% endblock %}">
+    <meta name="keywords" content="formation agricole, institut agricole, Tové, Togo, agriculture, enseignement">
+    <meta name="author" content="{{ site_config.nom_institut }}">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-seedling me-2"></i>
+                INFA Tové
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="fas fa-home me-1"></i>Accueil
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-graduation-cap me-1"></i>Formations
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('formations') }}">Toutes les formations</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('candidature') }}">Candidater</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('actualites') }}">
+                            <i class="fas fa-newspaper me-1"></i>Actualités
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-info-circle me-1"></i>À propos
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('historique') }}">Historique</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('equipe') }}">Notre équipe</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('infrastructures') }}">Infrastructures</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('resultats') }}">
+                            <i class="fas fa-trophy me-1"></i>Résultats
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('contact') }}">
+                            <i class="fas fa-envelope me-1"></i>Contact
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-3">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {% if category == 'success' %}
+                            <i class="fas fa-check-circle me-2"></i>
+                        {% elif category == 'warning' %}
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                        {% elif category == 'error' %}
+                            <i class="fas fa-times-circle me-2"></i>
+                        {% else %}
+                            <i class="fas fa-info-circle me-2"></i>
+                        {% endif %}
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5><i class="fas fa-seedling me-2"></i>{{ site_config.nom_institut }}</h5>
+                    <p class="mb-3">{{ site_config.mission|truncate(150) if site_config.mission else "Institut de formation agricole de référence au Togo." }}</p>
+                    
+                    {% if site_config.facebook or site_config.twitter or site_config.linkedin %}
+                    <ul class="social-icons">
+                        {% if site_config.facebook %}
+                        <li><a href="{{ site_config.facebook }}" target="_blank"><i class="fab fa-facebook"></i></a></li>
+                        {% endif %}
+                        {% if site_config.twitter %}
+                        <li><a href="{{ site_config.twitter }}" target="_blank"><i class="fab fa-twitter"></i></a></li>
+                        {% endif %}
+                        {% if site_config.linkedin %}
+                        <li><a href="{{ site_config.linkedin }}" target="_blank"><i class="fab fa-linkedin"></i></a></li>
+                        {% endif %}
+                    </ul>
+                    {% endif %}
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <h5>Liens rapides</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('formations') }}">Nos formations</a></li>
+                        <li><a href="{{ url_for('candidature') }}">Candidater</a></li>
+                        <li><a href="{{ url_for('resultats') }}">Résultats</a></li>
+                        <li><a href="{{ url_for('actualites') }}">Actualités</a></li>
+                        <li><a href="{{ url_for('contact') }}">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>À propos</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('historique') }}">Historique</a></li>
+                        <li><a href="{{ url_for('equipe') }}">Notre équipe</a></li>
+                        <li><a href="{{ url_for('infrastructures') }}">Infrastructures</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-3 mb-4">
+                    <h5>Contact</h5>
+                    {% if site_config.adresse %}
+                    <p><i class="fas fa-map-marker-alt me-2"></i>{{ site_config.adresse }}</p>
+                    {% endif %}
+                    {% if site_config.telephone %}
+                    <p><i class="fas fa-phone me-2"></i>{{ site_config.telephone }}</p>
+                    {% endif %}
+                    {% if site_config.email %}
+                    <p><i class="fas fa-envelope me-2"></i>{{ site_config.email }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; {{ moment().year if moment else 2024 }} {{ site_config.nom_institut }}. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

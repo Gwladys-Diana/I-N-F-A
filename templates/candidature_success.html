@@ -1,0 +1,390 @@
+{% extends "base.html" %}
+
+{% block title %}Candidature soumise - {{ super() }}{% endblock %}
+
+{% block content %}
+<!-- Success Header -->
+<section class="section bg-success text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <i class="fas fa-check-circle fa-5x mb-4"></i>
+                <h1 class="display-5 mb-3">Candidature soumise avec succès !</h1>
+                <p class="lead">Votre dossier de candidature a été reçu et enregistré.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Informations de candidature -->
+<section class="section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h3 class="mb-0">
+                            <i class="fas fa-file-alt me-2"></i>Récapitulatif de votre candidature
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <strong class="text-primary">Numéro de dossier :</strong><br>
+                                <span class="badge bg-primary fs-6">{{ candidature.numero_dossier }}</span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <strong class="text-primary">Date de soumission :</strong><br>
+                                {{ candidature.date_soumission.strftime('%d %B %Y à %H:%M') if candidature.date_soumission else '' }}
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <strong class="text-primary">Candidat :</strong><br>
+                                {{ candidature.prenom }} {{ candidature.nom|upper }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <strong class="text-primary">Email :</strong><br>
+                                {{ candidature.email }}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <strong class="text-primary">Formation souhaitée :</strong><br>
+                                {{ candidature.formation.nom if candidature.formation else 'Non spécifiée' }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <strong class="text-primary">Statut :</strong><br>
+                                <span class="badge bg-warning">{{ candidature.statut }}</span>
+                            </div>
+                        </div>
+                        
+                        {% if candidature.session_concours %}
+                        <div class="mb-3">
+                            <strong class="text-primary">Session de concours :</strong><br>
+                            {{ candidature.session_concours }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Prochaines étapes -->
+<section class="section bg-light-green">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title text-primary text-center mb-4">
+                            <i class="fas fa-road me-2"></i>Prochaines étapes
+                        </h3>
+                        
+                        <div class="timeline">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div class="d-flex align-items-start">
+                                        <div class="step-number">1</div>
+                                        <div class="step-content">
+                                            <h5 class="step-title">Confirmation de réception</h5>
+                                            <p class="step-description">
+                                                Vous recevrez un email de confirmation dans les 24 heures 
+                                                avec le détail de votre candidature et votre numéro de dossier.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-4">
+                                    <div class="d-flex align-items-start">
+                                        <div class="step-number">2</div>
+                                        <div class="step-content">
+                                            <h5 class="step-title">Étude du dossier</h5>
+                                            <p class="step-description">
+                                                Notre commission d'admission étudiera votre dossier et 
+                                                vos documents dans un délai de 2 à 3 semaines.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-4">
+                                    <div class="d-flex align-items-start">
+                                        <div class="step-number">3</div>
+                                        <div class="step-content">
+                                            <h5 class="step-title">Notification des résultats</h5>
+                                            <p class="step-description">
+                                                Vous serez informé par email et SMS du résultat de votre 
+                                                candidature. Les résultats seront aussi publiés sur notre site.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-4">
+                                    <div class="d-flex align-items-start">
+                                        <div class="step-number">4</div>
+                                        <div class="step-content">
+                                            <h5 class="step-title">Inscription (si admis)</h5>
+                                            <p class="step-description">
+                                                Si vous êtes retenu, vous recevrez une convocation pour 
+                                                finaliser votre inscription dans les 15 jours.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Informations importantes -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="alert alert-info" role="alert">
+                    <h5 class="alert-heading">
+                        <i class="fas fa-info-circle me-2"></i>Informations importantes
+                    </h5>
+                    <hr>
+                    <ul class="mb-0">
+                        <li><strong>Conservez votre numéro de dossier :</strong> {{ candidature.numero_dossier }}</li>
+                        <li><strong>Vérifiez votre boîte email</strong> régulièrement, y compris les spams</li>
+                        <li><strong>Consultez les résultats</strong> sur notre site dans la section "Résultats"</li>
+                        <li><strong>En cas de problème,</strong> contactez-nous en mentionnant votre numéro de dossier</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Actions -->
+<section class="section bg-light-green">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h3>Que faire maintenant ?</h3>
+                <p class="lead mb-4">
+                    Votre candidature est entre nos mains. En attendant les résultats, 
+                    voici quelques actions que vous pouvez entreprendre.
+                </p>
+                
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-search fa-3x text-primary mb-3"></i>
+                                <h5>Consulter les résultats</h5>
+                                <p class="card-text small">
+                                    Vérifiez régulièrement la publication des résultats avec votre numéro de dossier.
+                                </p>
+                                <a href="{{ url_for('resultats') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-trophy me-1"></i>Voir les résultats
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-graduation-cap fa-3x text-primary mb-3"></i>
+                                <h5>Explorer nos formations</h5>
+                                <p class="card-text small">
+                                    Découvrez nos autres formations qui pourraient vous intéresser.
+                                </p>
+                                <a href="{{ url_for('formations') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-list me-1"></i>Nos formations
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-envelope fa-3x text-primary mb-3"></i>
+                                <h5>Nous contacter</h5>
+                                <p class="card-text small">
+                                    Vous avez des questions ? N'hésitez pas à nous contacter.
+                                </p>
+                                <a href="{{ url_for('contact') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-phone me-1"></i>Contact
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-home me-2"></i>Retour à l'accueil
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Conseils -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title text-primary text-center">
+                            <i class="fas fa-lightbulb me-2"></i>Conseils pour la suite
+                        </h4>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-primary">En attendant les résultats :</h6>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Continuez vos études actuelles
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Renseignez-vous sur le domaine agricole
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Suivez nos actualités
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-primary">Si vous êtes admis :</h6>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Préparez les documents d'inscription
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Organisez votre hébergement
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Rejoignez la communauté étudiante
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary-green);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.step-content {
+    flex: 1;
+}
+
+.step-title {
+    color: var(--primary-green);
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.step-description {
+    color: var(--text-light);
+    margin-bottom: 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.timeline {
+    position: relative;
+}
+
+@media (min-width: 768px) {
+    .timeline::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        width: 2px;
+        height: calc(100% - 40px);
+        background: var(--light-green);
+        transform: translateX(-50%);
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation d'apparition des éléments
+    const elements = document.querySelectorAll('.card, .alert');
+    
+    elements.forEach((element, index) => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(20px)';
+        element.style.transition = 'all 0.6s ease';
+        
+        setTimeout(() => {
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+        }, index * 200);
+    });
+    
+    // Copier le numéro de dossier au clic
+    const numeroDossier = document.querySelector('.badge');
+    if (numeroDossier) {
+        numeroDossier.style.cursor = 'pointer';
+        numeroDossier.title = 'Cliquer pour copier';
+        
+        numeroDossier.addEventListener('click', function() {
+            navigator.clipboard.writeText(this.textContent).then(() => {
+                // Feedback visuel
+                const originalText = this.textContent;
+                this.textContent = 'Copié !';
+                this.classList.remove('bg-primary');
+                this.classList.add('bg-success');
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    this.classList.remove('bg-success');
+                    this.classList.add('bg-primary');
+                }, 2000);
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

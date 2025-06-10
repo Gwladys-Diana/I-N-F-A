@@ -1,0 +1,326 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ title }} - {{ super() }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Accueil</a></li>
+<li class="breadcrumb-item"><a href="{{ url_for('admin.formations') }}">Formations</a></li>
+<li class="breadcrumb-item active">{{ title }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">{{ title }}</h1>
+        <p class="page-subtitle">
+            {% if formation %}
+                Modifier les informations de la formation
+            {% else %}
+                Ajouter une nouvelle formation au catalogue
+            {% endif %}
+        </p>
+    </div>
+    <div>
+        <a href="{{ url_for('admin.formations') }}" class="btn-admin btn-admin-outline">
+            <i class="fas fa-arrow-left me-1"></i>Retour à la liste
+        </a>
+    </div>
+</div>
+
+<form method="POST" class="admin-form" data-auto-save>
+    {{ form.hidden_tag() }}
+    
+    <div class="row">
+        <!-- Informations principales -->
+        <div class="col-lg-8">
+            <div class="admin-form-container mb-4">
+                <h4 class="text-primary mb-3">
+                    <i class="fas fa-info-circle me-2"></i>Informations générales
+                </h4>
+                
+                <div class="form-group-admin">
+                    {{ form.nom.label(class="form-label-admin") }}<span class="text-danger">*</span>
+                    {{ form.nom(class="form-control-admin", placeholder="Ex: Agriculture biologique et durable") }}
+                    {% if form.nom.errors %}
+                        <div class="invalid-feedback-admin">{{ form.nom.errors[0] }}</div>
+                    {% endif %}
+                    <div class="form-text-admin">Le nom de la formation tel qu'il apparaîtra sur le site</div>
+                </div>
+                
+                <div class="form-group-admin">
+                    {{ form.description.label(class="form-label-admin") }}
+                    {{ form.description(class="form-control-admin", rows="5", placeholder="Description détaillée de la formation, ses objectifs, son contenu...") }}
+                    {% if form.description.errors %}
+                        <div class="invalid-feedback-admin">{{ form.description.errors[0] }}</div>
+                    {% endif %}
+                    <div class="form-text-admin">Description complète qui sera affichée sur la page de détail</div>
+                </div>
+                
+                <div class="form-group-admin">
+                    {{ form.debouches.label(class="form-label-admin") }}
+                    {{ form.debouches(class="form-control-admin", rows="4", placeholder="Les métiers et opportunités après cette formation...") }}
+                    {% if form.debouches.errors %}
+                        <div class="invalid-feedback-admin">{{ form.debouches.errors[0] }}</div>
+                    {% endif %}
+                    <div class="form-text-admin">Décrivez les débouchés professionnels de cette formation</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Paramètres -->
+        <div class="col-lg-4">
+            <div class="admin-form-container mb-4">
+                <h4 class="text-primary mb-3">
+                    <i class="fas fa-cog me-2"></i>Paramètres
+                </h4>
+                
+                <div class="form-group-admin">
+                    {{ form.duree.label(class="form-label-admin") }}
+                    {{ form.duree(class="form-control-admin", placeholder="Ex: 2 ans, 6 mois") }}
+                    {% if form.duree.errors %}
+                        <div class="invalid-feedback-admin">{{ form.duree.errors[0] }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group-admin">
+                    {{ form.niveau_requis.label(class="form-label-admin") }}
+                    {{ form.niveau_requis(class="form-control-admin", placeholder="Ex: BAC, BEPC, CAP") }}
+                    {% if form.niveau_requis.errors %}
+                        <div class="invalid-feedback-admin">{{ form.niveau_requis.errors[0] }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group-admin">
+                    {{ form.places_disponibles.label(class="form-label-admin") }}
+                    {{ form.places_disponibles(class="form-control-admin", min="0", placeholder="Nombre de places") }}
+                    {% if form.places_disponibles.errors %}
+                        <div class="invalid-feedback-admin">{{ form.places_disponibles.errors[0] }}</div>
+                    {% endif %}
+                    <div class="form-text-admin">Nombre maximum d'étudiants pour cette formation</div>
+                </div>
+                
+                <div class="form-group-admin">
+                    {{ form.prix.label(class="form-label-admin") }}
+                    <div class="input-group">
+                        {{ form.prix(class="form-control-admin", min="0", step="1000", placeholder="0") }}
+                        <span class="input-group-text">FCFA</span>
+                    </div>
+                    {% if form.prix.errors %}
+                        <div class="invalid-feedback-admin">{{ form.prix.errors[0] }}</div>
+                    {% endif %}
+                    <div class="form-text-admin">Laissez à 0 pour une formation gratuite</div>
+                </div>
+                
+                <div class="form-check">
+                    {{ form.is_active(class="form-check-input") }}
+                    {{ form.is_active.label(class="form-check-label") }}
+                    {% if form.is_active.errors %}
+                        <div class="invalid-feedback-admin">{{ form.is_active.errors[0] }}</div>
+                    {% endif %}
+                    <div class="form-text-admin">Les formations inactives n'apparaissent pas sur le site</div>
+                </div>
+            </div>
+            
+            <!-- Aperçu en temps réel -->
+            <div class="admin-form-container">
+                <h5 class="text-primary mb-3">
+                    <i class="fas fa-eye me-2"></i>Aperçu
+                </h5>
+                <div class="preview-card">
+                    <div class="preview-title" id="previewTitle">
+                        {% if formation %}{{ formation.nom }}{% else %}Nom de la formation{% endif %}
+                    </div>
+                    <div class="preview-duration" id="previewDuration">
+                        {% if formation and formation.duree %}{{ formation.duree }}{% else %}Durée{% endif %}
+                    </div>
+                    <div class="preview-description" id="previewDescription">
+                        {% if formation and formation.description %}{{ formation.description|truncate(100) }}{% else %}Description de la formation...{% endif %}
+                    </div>
+                    <div class="preview-info">
+                        <small id="previewLevel">
+                            <i class="fas fa-graduation-cap me-1"></i>
+                            {% if formation and formation.niveau_requis %}{{ formation.niveau_requis }}{% else %}Niveau requis{% endif %}
+                        </small>
+                        <br>
+                        <small id="previewPlaces">
+                            <i class="fas fa-users me-1"></i>
+                            <span id="placesValue">{% if formation and formation.places_disponibles %}{{ formation.places_disponibles }}{% else %}0{% endif %}</span> places
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Actions -->
+    <div class="admin-form-container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                {% if formation %}
+                <small class="text-muted">
+                    <i class="fas fa-clock me-1"></i>
+                    Dernière modification : {{ formation.date_modification.strftime('%d %B %Y à %H:%M') if formation.date_modification else 'Jamais' }}
+                </small>
+                {% endif %}
+            </div>
+            <div>
+                <a href="{{ url_for('admin.formations') }}" class="btn-admin btn-admin-outline me-2">
+                    <i class="fas fa-times me-1"></i>Annuler
+                </a>
+                {{ form.submit(class="btn-admin btn-admin-primary") }}
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.preview-card {
+    border: 2px solid var(--admin-border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    background: white;
+}
+
+.preview-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--admin-primary);
+    margin-bottom: 0.5rem;
+}
+
+.preview-duration {
+    background: var(--admin-accent);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.875rem;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+.preview-description {
+    color: var(--admin-text-light);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.preview-info small {
+    color: var(--admin-text-light);
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.input-group-text {
+    background-color: var(--admin-light);
+    border: 2px solid var(--admin-border);
+    border-left: none;
+    color: var(--admin-text);
+}
+
+.form-check {
+    background: var(--admin-light);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+.form-check-input:checked {
+    background-color: var(--admin-primary);
+    border-color: var(--admin-primary);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Aperçu en temps réel
+    const nomField = document.getElementById('nom');
+    const dureeField = document.getElementById('duree');
+    const descriptionField = document.getElementById('description');
+    const niveauField = document.getElementById('niveau_requis');
+    const placesField = document.getElementById('places_disponibles');
+    
+    function updatePreview() {
+        // Titre
+        const title = nomField.value || 'Nom de la formation';
+        document.getElementById('previewTitle').textContent = title;
+        
+        // Durée
+        const duration = dureeField.value || 'Durée';
+        document.getElementById('previewDuration').textContent = duration;
+        
+        // Description
+        const description = descriptionField.value || 'Description de la formation...';
+        const truncatedDesc = description.length > 100 ? description.substring(0, 100) + '...' : description;
+        document.getElementById('previewDescription').textContent = truncatedDesc;
+        
+        // Niveau
+        const level = niveauField.value || 'Niveau requis';
+        document.getElementById('previewLevel').innerHTML = `<i class="fas fa-graduation-cap me-1"></i>${level}`;
+        
+        // Places
+        const places = placesField.value || '0';
+        document.getElementById('placesValue').textContent = places;
+    }
+    
+    // Écouter les changements
+    [nomField, dureeField, descriptionField, niveauField, placesField].forEach(field => {
+        if (field) {
+            field.addEventListener('input', updatePreview);
+        }
+    });
+    
+    // Animation d'apparition
+    const containers = document.querySelectorAll('.admin-form-container');
+    containers.forEach((container, index) => {
+        container.style.opacity = '0';
+        container.style.transform = 'translateY(20px)';
+        container.style.transition = 'all 0.6s ease';
+        
+        setTimeout(() => {
+            container.style.opacity = '1';
+            container.style.transform = 'translateY(0)';
+        }, index * 150);
+    });
+    
+    // Validation en temps réel
+    const form = document.querySelector('.admin-form');
+    const inputs = form.querySelectorAll('input, textarea, select');
+    
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            validateField(this);
+        });
+    });
+    
+    function validateField(field) {
+        // Validation simple
+        if (field.hasAttribute('required') && !field.value.trim()) {
+            field.classList.add('is-invalid');
+            showFieldError(field, 'Ce champ est obligatoire');
+        } else {
+            field.classList.remove('is-invalid');
+            removeFieldError(field);
+        }
+    }
+    
+    function showFieldError(field, message) {
+        removeFieldError(field);
+        const error = document.createElement('div');
+        error.className = 'invalid-feedback-admin';
+        error.textContent = message;
+        field.parentNode.appendChild(error);
+    }
+    
+    function removeFieldError(field) {
+        const existingError = field.parentNode.querySelector('.invalid-feedback-admin');
+        if (existingError) {
+            existingError.remove();
+        }
+    }
+});
+</script>
+{% endblock %}

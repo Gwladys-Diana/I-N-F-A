@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+
+{% block title %}Infrastructures - {{ super() }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="section bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-5 mb-3">Nos infrastructures</h1>
+                <p class="lead">Découvrez les équipements modernes et les installations de qualité de l'INFA</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Galerie d'infrastructures -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <!-- Salles de classe -->
+            <div class="col-lg-6 mb-5">
+                <div class="card h-100">
+                    <img src="https://pixabay.com/get/g453710d15b305bda695f2249eb3ba7f1056c4e739d5c74912c8d99e3066d2af91291b3b2c87011a3ea6e454bc26681606c0a497ea40a883363dac2c2e1a6e71a_1280.jpg" 
+                         class="card-img-top" alt="Salles de classe modernes" style="height: 250px; object-fit: cover;">
+                    <div class="card-body">
+                        <h4 class="card-title text-primary">
+                            <i class="fas fa-chalkboard-teacher me-2"></i>Salles de classe modernes
+                        </h4>
+                        <p class="card-text">
+                            Nos salles de classe sont équipées des dernières technologies éducatives pour garantir 
+                            un apprentissage optimal. Chaque salle dispose de systèmes audiovisuels, de connexion 
+                            internet haut débit et d'un mobilier ergonomique.
+                        </p>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>12 salles de classe climatisées</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Équipement audiovisuel moderne</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Connexion WiFi haut débit</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Capacité de 30 à 50 étudiants</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Laboratoires -->
+            <div class="col-lg-6 mb-5">
+                <div class="card h-100">
+                    <img src="https://pixabay.com/get/g87a598295b5da085db041351a428207d627ecef3c43110f962e7ec37782d71e2b9fb6e9f0baa66ad04a5654cd99740a7d6c38cfdef500846750dcd3f784ed38e_1280.jpg" 
+                         class="card-img-top" alt="Laboratoires scientifiques" style="height: 250px; object-fit: cover;">
+                    <div class="card-body">
+                        <h4 class="card-title text-primary">
+                            <i class="fas fa-flask me-2"></i>Laboratoires scientifiques
+                        </h4>
+                        <p class="card-text">
+                            Nos laboratoires permettent aux étudiants de mettre en pratique leurs connaissances 
+                            théoriques. Ils sont équipés d'instruments de pointe pour l'analyse des sols, 
+                            l'étude des plantes et les recherches agricoles.
+                        </p>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Laboratoire de chimie agricole</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Laboratoire de biologie végétale</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Laboratoire d'analyse des sols</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Équipements de recherche modernes</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exploitations agricoles -->
+            <div class="col-lg-6 mb-5">
+                <div class="card h-100">
+                    <img src="https://pixabay.com/get/g127383218c3f59f6673e5595ae333f33851a4ed2c931ae7a8b4583407b7f027f6d13c4816dabeacb31ca16cff5fa5885e24b368db7d8d4fe345fa87a6bd35c48_1280.jpg" 
+                         class="card-img-top" alt="Exploitations agricoles" style="height: 250px; object-fit: cover;">
+                    <div class="card-body">
+                        <h4 class="card-title text-primary">
+                            <i class="fas fa-seedling me-2"></i>Exploitations agricoles
+                        </h4>
+                        <p class="card-text">
+                            L'INFA dispose de vastes exploitations agricoles où les étudiants peuvent pratiquer 
+                            différentes techniques de culture, d'élevage et de gestion des ressources naturelles 
+                            dans un environnement réel.
+                        </p>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>50 hectares de terres cultivables</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Serres modernes</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Système d'irrigation automatisé</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Parcelles expérimentales</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Élevage -->
+            <div class="col-lg-6 mb-5">
+                <div class="card h-100">
+                    <img src="https://pixabay.com/get/g4b713cb3accdfd68beea8ce4071081cfa15dadb25c5f75cedf1f3a397c86ecdc1727a82c3cbd385aa29839f65dfc3fb9e5ea209001b5deff4301392c13ef90c1_1280.jpg" 
+                         class="card-img-top" alt="Installations d'élevage" style="height: 250px; object-fit: cover;">
+                    <div class="card-body">
+                        <h4 class="card-title text-primary">
+                            <i class="fas fa-horse me-2"></i>Installations d'élevage
+                        </h4>
+                        <p class="card-text">
+                            Nos installations d'élevage modernes permettent aux étudiants d'apprendre les techniques 
+                            de zootechnie et de gestion du bétail dans des conditions optimales de bien-être animal 
+                            et de productivité.
+                        </p>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Étables modernes</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Poulaillers automatisés</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Porcheries hygiéniques</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Clinique vétérinaire</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bibliothèque -->
+            <div class="col-lg-6 mb-5">
+                <div class="card h-100">
+                    <img src="https://pixabay.com/get/gf473d5e7fd35701f8306d841e3aa4236d5a6cd1639aba7359e4cde2b9f7e2b28991692299cc3b15e241762e63479f3d7602158802bf7f0a23428ec6c57e981d6_1280.jpg" 
+                         class="card-img-top" alt="Bibliothèque et centre de documentation" style="height: 250px; object-fit: cover;">
+                    <div class="card-body">
+                        <h4 class="card-title text-primary">
+                            <i class="fas fa-book me-2"></i>Bibliothèque et documentation
+                        </h4>
+                        <p class="card-text">
+                            Notre bibliothèque moderne offre un accès à une vaste collection d'ouvrages spécialisés, 
+                            de revues scientifiques et de ressources numériques dans le domaine agricole et du 
+                            développement rural.
+                        </p>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Plus de 5000 ouvrages</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Accès aux bases de données scientifiques</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Espaces de travail silencieux</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Connexion internet gratuite</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ateliers techniques -->
+            <div class="col-lg-6 mb-5">
+                <div class="card h-100">
+                    <img src="https://pixabay.com/get/g47329c5a5e2984fb426f5791c6334b0d59cace544d0615032f568b6f877f9887740f45f409379d54c1278abb71039cba056827331d613ca6628aaf787bb282e8_1280.jpg" 
+                         class="card-img-top" alt="Ateliers techniques" style="height: 250px; object-fit: cover;">
+                    <div class="card-body">
+                        <h4 class="card-title text-primary">
+                            <i class="fas fa-tools me-2"></i>Ateliers techniques
+                        </h4>
+                        <p class="card-text">
+                            Nos ateliers techniques permettent aux étudiants d'apprendre la maintenance et la 
+                            réparation du matériel agricole, ainsi que la fabrication d'outils et d'équipements 
+                            adaptés aux besoins locaux.
+                        </p>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Atelier de mécanique agricole</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Atelier de métallurgie</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Atelier de menuiserie</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Outils et machines modernes</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Équipements supplémentaires -->
+<section class="section bg-light-green">
+    <div class="container">
+        <h2 class="section-title">Équipements et services</h2>
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-tractor fa-3x text-primary mb-3"></i>
+                        <h5>Matériel agricole</h5>
+                        <p class="card-text">Tracteurs, moissonneuses, et équipements modernes pour la formation pratique.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-wifi fa-3x text-primary mb-3"></i>
+                        <h5>Connexion internet</h5>
+                        <p class="card-text">WiFi haut débit disponible dans tous les bâtiments et espaces communs.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-utensils fa-3x text-primary mb-3"></i>
+                        <h5>Restaurant</h5>
+                        <p class="card-text">Restaurant moderne offrant des repas équilibrés aux étudiants et au personnel.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-bed fa-3x text-primary mb-3"></i>
+                        <h5>Hébergement</h5>
+                        <p class="card-text">Résidences étudiantes modernes et confortables sur le campus.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Plan du campus -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h3>Visitez notre campus</h3>
+                <p class="lead mb-4">
+                    L'INFA vous ouvre ses portes ! Venez découvrir nos infrastructures modernes et 
+                    rencontrer notre équipe pédagogique lors de nos journées portes ouvertes.
+                </p>
+                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                    <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-calendar-alt me-2"></i>Programmer une visite
+                    </a>
+                    <a href="{{ url_for('formations') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-graduation-cap me-2"></i>Découvrir nos formations
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Développement durable -->
+<section class="section bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h3>Engagement pour l'environnement</h3>
+                <p class="lead mb-0">
+                    L'INFA s'engage dans une démarche de développement durable avec des infrastructures 
+                    éco-responsables, l'utilisation d'énergies renouvelables et la promotion de 
+                    l'agriculture biologique.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <i class="fas fa-leaf fa-4x"></i>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des cartes d'infrastructure
+    const cards = document.querySelectorAll('.card');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.style.opacity = '0';
+                    entry.target.style.transform = 'translateY(30px)';
+                    entry.target.style.transition = 'all 0.6s ease';
+                    
+                    setTimeout(() => {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, 50);
+                }, index * 100);
+                
+                observer.unobserve(entry.target);
+            }
+        });
+    });
+    
+    cards.forEach(card => {
+        observer.observe(card);
+    });
+});
+</script>
+{% endblock %}

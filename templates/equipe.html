@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+
+{% block title %}Notre équipe - {{ super() }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="section bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-5 mb-3">Notre équipe</h1>
+                <p class="lead">Découvrez les enseignants et le personnel administratif qui font la richesse de l'INFA</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Équipe -->
+<section class="section">
+    <div class="container">
+        {% if membres %}
+            <!-- Direction -->
+            {% set direction = membres|selectattr('departement', 'equalto', 'Direction')|list %}
+            {% if direction %}
+            <div class="mb-5">
+                <h2 class="section-title">Direction</h2>
+                <div class="row justify-content-center">
+                    {% for membre in direction %}
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card membre-card">
+                            {% if membre.photo_filename %}
+                            <img src="{{ url_for('static', filename='uploads/' + membre.photo_filename) }}" 
+                                 alt="Photo de {{ membre.prenom }} {{ membre.nom }}" 
+                                 class="membre-photo mx-auto">
+                            {% else %}
+                            <img src="https://pixabay.com/get/gcfce44ef24cbbc619104c58a38ece9fa14177eb4651a64e9cb8baa52d726478e49ea6daacdaebb8151e1d783e08b6344a1077d15e31ad56b045a2fbadaca0462_1280.jpg" 
+                                 alt="Photo de {{ membre.prenom }} {{ membre.nom }}" 
+                                 class="membre-photo mx-auto">
+                            {% endif %}
+                            
+                            <h5 class="membre-nom">{{ membre.prenom }} {{ membre.nom|upper }}</h5>
+                            <p class="membre-poste">{{ membre.poste }}</p>
+                            
+                            {% if membre.formation_academique %}
+                            <div class="mb-3">
+                                <h6 class="text-primary">Formation</h6>
+                                <p class="small text-muted">{{ membre.formation_academique|truncate(100) }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if membre.specialites %}
+                            <div class="mb-3">
+                                <h6 class="text-primary">Spécialités</h6>
+                                <p class="small text-muted">{{ membre.specialites|truncate(100) }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if membre.email or membre.telephone %}
+                            <div class="contact-info">
+                                {% if membre.email %}
+                                <p class="small mb-1">
+                                    <i class="fas fa-envelope text-primary me-1"></i>
+                                    <a href="mailto:{{ membre.email }}">{{ membre.email }}</a>
+                                </p>
+                                {% endif %}
+                                {% if membre.telephone %}
+                                <p class="small mb-0">
+                                    <i class="fas fa-phone text-primary me-1"></i>
+                                    {{ membre.telephone }}
+                                </p>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Corps enseignant -->
+            {% set enseignants = membres|rejectattr('departement', 'equalto', 'Direction')|selectattr('poste', 'match', '.*[Ee]nseignant.*|.*[Pp]rofesseur.*')|list %}
+            {% if enseignants %}
+            <div class="mb-5">
+                <h2 class="section-title">Corps enseignant</h2>
+                <div class="row">
+                    {% for membre in enseignants %}
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="card membre-card">
+                            {% if membre.photo_filename %}
+                            <img src="{{ url_for('static', filename='uploads/' + membre.photo_filename) }}" 
+                                 alt="Photo de {{ membre.prenom }} {{ membre.nom }}" 
+                                 class="membre-photo mx-auto">
+                            {% else %}
+                            <img src="https://pixabay.com/get/gd6f9382eb5851cc199b809c93f3a928e6426aed7e5178d8418d1733994cbf50c9edccab0a11701f2e603d17ff227c3ca031a38a9586083208ce7773b27b712fd_1280.jpg" 
+                                 alt="Photo de {{ membre.prenom }} {{ membre.nom }}" 
+                                 class="membre-photo mx-auto">
+                            {% endif %}
+                            
+                            <h5 class="membre-nom">{{ membre.prenom }} {{ membre.nom|upper }}</h5>
+                            <p class="membre-poste">{{ membre.poste }}</p>
+                            
+                            {% if membre.departement and membre.departement != 'Direction' %}
+                            <p class="text-muted small mb-2">
+                                <i class="fas fa-building me-1"></i>{{ membre.departement }}
+                            </p>
+                            {% endif %}
+                            
+                            {% if membre.specialites %}
+                            <div class="mb-3">
+                                <h6 class="text-primary small">Spécialités</h6>
+                                <p class="small text-muted">{{ membre.specialites|truncate(80) }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if membre.email %}
+                            <p class="small mb-0">
+                                <i class="fas fa-envelope text-primary me-1"></i>
+                                <a href="mailto:{{ membre.email }}">{{ membre.email }}</a>
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Personnel administratif -->
+            {% set administratifs = membres|rejectattr('departement', 'equalto', 'Direction')|rejectattr('poste', 'match', '.*[Ee]nseignant.*|.*[Pp]rofesseur.*')|list %}
+            {% if administratifs %}
+            <div class="mb-5">
+                <h2 class="section-title">Personnel administratif</h2>
+                <div class="row">
+                    {% for membre in administratifs %}
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="card membre-card">
+                            {% if membre.photo_filename %}
+                            <img src="{{ url_for('static', filename='uploads/' + membre.photo_filename) }}" 
+                                 alt="Photo de {{ membre.prenom }} {{ membre.nom }}" 
+                                 class="membre-photo mx-auto">
+                            {% else %}
+                            <img src="https://pixabay.com/get/gbc6d7542f0f5e33a10e6524849823bcf0bb1ad8b07fcb72cedf7ed4d055469d9bb7ac1331f58acaf41d61205fa803c3db10b0465d56ca3e9bd9590501228161e_1280.jpg" 
+                                 alt="Photo de {{ membre.prenom }} {{ membre.nom }}" 
+                                 class="membre-photo mx-auto">
+                            {% endif %}
+                            
+                            <h5 class="membre-nom">{{ membre.prenom }} {{ membre.nom|upper }}</h5>
+                            <p class="membre-poste">{{ membre.poste }}</p>
+                            
+                            {% if membre.departement %}
+                            <p class="text-muted small mb-2">
+                                <i class="fas fa-building me-1"></i>{{ membre.departement }}
+                            </p>
+                            {% endif %}
+                            
+                            {% if membre.email %}
+                            <p class="small mb-0">
+                                <i class="fas fa-envelope text-primary me-1"></i>
+                                <a href="mailto:{{ membre.email }}">{{ membre.email }}</a>
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+        {% else %}
+            <!-- Aucun membre -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body text-center py-5">
+                            <i class="fas fa-users fa-4x text-muted mb-4"></i>
+                            <h4 class="text-muted">Informations sur l'équipe bientôt disponibles</h4>
+                            <p class="text-muted">Les informations sur notre équipe pédagogique et administrative seront publiées prochainement.</p>
+                            <a href="{{ url_for('contact') }}" class="btn btn-primary">
+                                <i class="fas fa-envelope me-2"></i>Nous contacter
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Valeurs de l'équipe -->
+<section class="section bg-light-green">
+    <div class="container">
+        <h2 class="section-title">Nos valeurs</h2>
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-lightbulb fa-3x text-primary mb-3"></i>
+                        <h5>Excellence</h5>
+                        <p class="card-text">Nous nous engageons à fournir une formation de la plus haute qualité à nos étudiants.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-handshake fa-3x text-primary mb-3"></i>
+                        <h5>Collaboration</h5>
+                        <p class="card-text">Le travail d'équipe et la collaboration sont au cœur de notre approche pédagogique.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-seedling fa-3x text-primary mb-3"></i>
+                        <h5>Innovation</h5>
+                        <p class="card-text">Nous intégrons les dernières innovations agricoles dans nos programmes de formation.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-heart fa-3x text-primary mb-3"></i>
+                        <h5>Engagement</h5>
+                        <p class="card-text">Notre équipe s'engage pleinement dans la réussite de chaque étudiant.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Rejoignez-nous -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h3>Rejoignez notre équipe</h3>
+                <p class="lead mb-4">L'INFA recherche constamment des enseignants et du personnel qualifiés pour enrichir son équipe pédagogique et administrative.</p>
+                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                    <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-envelope me-2"></i>Nous contacter
+                    </a>
+                    <a href="{{ url_for('formations') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-graduation-cap me-2"></i>Nos formations
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des cartes de membres
+    const memberCards = document.querySelectorAll('.membre-card');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.style.opacity = '0';
+                    entry.target.style.transform = 'translateY(30px) scale(0.9)';
+                    entry.target.style.transition = 'all 0.6s ease';
+                    
+                    setTimeout(() => {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0) scale(1)';
+                    }, 50);
+                }, index * 100);
+                
+                observer.unobserve(entry.target);
+            }
+        });
+    });
+    
+    memberCards.forEach(card => {
+        observer.observe(card);
+    });
+    
+    // Effet hover sur les cartes
+    memberCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-10px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+});
+</script>
+{% endblock %}

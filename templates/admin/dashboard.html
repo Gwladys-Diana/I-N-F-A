@@ -1,0 +1,297 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Tableau de bord - {{ super() }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Accueil</a></li>
+<li class="breadcrumb-item active">Tableau de bord</li>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">Tableau de bord</h1>
+        <p class="page-subtitle">Aperçu des activités de l'INFA</p>
+    </div>
+    <div>
+        <span class="badge bg-primary fs-6">
+            <i class="fas fa-calendar-alt me-1"></i>
+            {{ moment().format('DD MMMM YYYY') if moment else 'Aujourd\'hui' }}
+        </span>
+    </div>
+</div>
+
+<!-- Statistiques principales -->
+<div class="stats-grid mb-4">
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-title">Total candidatures</span>
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+        </div>
+        <div class="stat-value" id="stat-total">{{ total_candidatures }}</div>
+        <div class="stat-change positive">
+            <i class="fas fa-arrow-up"></i>
+            <span>+12% ce mois</span>
+        </div>
+    </div>
+    
+    <div class="stat-card warning">
+        <div class="stat-header">
+            <span class="stat-title">En attente</span>
+            <div class="stat-icon" style="background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);">
+                <i class="fas fa-clock"></i>
+            </div>
+        </div>
+        <div class="stat-value" id="stat-pending">{{ candidatures_en_attente }}</div>
+        <div class="stat-change">
+            <i class="fas fa-minus"></i>
+            <span>{{ candidatures_en_attente }} à traiter</span>
+        </div>
+    </div>
+    
+    <div class="stat-card success">
+        <div class="stat-header">
+            <span class="stat-title">Acceptées</span>
+            <div class="stat-icon" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                <i class="fas fa-check-circle"></i>
+            </div>
+        </div>
+        <div class="stat-value" id="stat-accepted">{{ candidatures_acceptees }}</div>
+        <div class="stat-change positive">
+            <i class="fas fa-arrow-up"></i>
+            <span>{{ ((candidatures_acceptees / total_candidatures) * 100)|round(1) if total_candidatures > 0 else 0 }}% du total</span>
+        </div>
+    </div>
+    
+    <div class="stat-card info">
+        <div class="stat-header">
+            <span class="stat-title">Messages non lus</span>
+            <div class="stat-icon" style="background: linear-gradient(135deg, #17a2b8 0%, #007bff 100%);">
+                <i class="fas fa-envelope"></i>
+            </div>
+        </div>
+        <div class="stat-value" id="stat-messages">{{ messages_non_lus }}</div>
+        <div class="stat-change">
+            <i class="fas fa-envelope-open"></i>
+            <span>{{ messages_non_lus }} nouveau{{ 'x' if messages_non_lus > 1 else '' }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Graphique des candidatures par mois -->
+    <div class="col-lg-8 mb-4">
+        <div class="chart-container">
+            <h3 class="chart-title">Évolution des candidatures</h3>
+            <canvas id="monthlyChart" 
+                    data-labels='{{ stats_mensuelles|map(attribute="mois")|list|tojson }}'
+                    data-data='{{ stats_mensuelles|map(attribute="nb_candidatures")|list|tojson }}'
+                    style="height: 300px;"></canvas>
+        </div>
+    </div>
+    
+    <!-- Répartition par formation -->
+    <div class="col-lg-4 mb-4">
+        <div class="chart-container">
+            <h3 class="chart-title">Candidatures par formation</h3>
+            <canvas id="formationsChart"
+                    data-labels='{{ stats_formations|map(attribute="nom")|list|tojson }}'
+                    data-data='{{ stats_formations|map(attribute="nb_candidatures")|list|tojson }}'
+                    style="height: 300px;"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Candidatures récentes -->
+<div class="admin-table-container mb-4">
+    <div class="table-header">
+        <h3 class="table-title">Candidatures récentes</h3>
+        <div class="table-actions">
+            <a href="{{ url_for('admin.candidatures') }}" class="btn-admin btn-admin-primary">
+                <i class="fas fa-list me-1"></i>Voir toutes
+            </a>
+        </div>
+    </div>
+    
+    {% if candidatures_recentes %}
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Numéro</th>
+                <th>Candidat</th>
+                <th>Formation</th>
+                <th>Date</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for candidature in candidatures_recentes %}
+            <tr>
+                <td>
+                    <span class="badge bg-secondary">{{ candidature.numero_dossier }}</span>
+                </td>
+                <td>
+                    <strong>{{ candidature.nom|upper }} {{ candidature.prenom|title }}</strong><br>
+                    <small class="text-muted">{{ candidature.email }}</small>
+                </td>
+                <td>
+                    <span class="text-muted">{{ candidature.formation.nom if candidature.formation else 'Non spécifiée' }}</span>
+                </td>
+                <td>
+                    {{ candidature.date_soumission.strftime('%d/%m/%Y %H:%M') if candidature.date_soumission else '-' }}
+                </td>
+                <td>
+                    {% if candidature.statut == 'En attente' %}
+                        <span class="status-badge status-pending">{{ candidature.statut }}</span>
+                    {% elif candidature.statut == 'Accepté' %}
+                        <span class="status-badge status-accepted">{{ candidature.statut }}</span>
+                    {% elif candidature.statut == 'Rejeté' %}
+                        <span class="status-badge status-rejected">{{ candidature.statut }}</span>
+                    {% else %}
+                        <span class="status-badge status-active">{{ candidature.statut }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('admin.candidature_detail', candidature_id=candidature.id) }}" 
+                       class="btn-admin btn-admin-sm btn-admin-outline">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="text-center py-4">
+        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">Aucune candidature récente</h5>
+        <p class="text-muted">Les nouvelles candidatures apparaîtront ici.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Actions rapides -->
+<div class="row">
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-plus-circle fa-3x text-primary mb-3"></i>
+                <h5>Nouvelle formation</h5>
+                <p class="card-text small">Ajouter une nouvelle formation au catalogue</p>
+                <a href="{{ url_for('admin.nouvelle_formation') }}" class="btn-admin btn-admin-primary">
+                    <i class="fas fa-plus me-1"></i>Créer
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-newspaper fa-3x text-success mb-3"></i>
+                <h5>Nouvelle actualité</h5>
+                <p class="card-text small">Publier une actualité sur le site</p>
+                <a href="{{ url_for('admin.nouvelle_actualite') }}" class="btn-admin btn-admin-success">
+                    <i class="fas fa-plus me-1"></i>Publier
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-user-plus fa-3x text-info mb-3"></i>
+                <h5>Nouveau membre</h5>
+                <p class="card-text small">Ajouter un membre à l'équipe</p>
+                <a href="{{ url_for('admin.nouveau_membre') }}" class="btn-admin btn-admin-outline">
+                    <i class="fas fa-plus me-1"></i>Ajouter
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-trophy fa-3x text-warning mb-3"></i>
+                <h5>Publier résultats</h5>
+                <p class="card-text small">Publier les résultats du concours</p>
+                <a href="{{ url_for('admin.resultats') }}" class="btn-admin btn-admin-warning">
+                    <i class="fas fa-trophy me-1"></i>Gérer
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Informations système -->
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title text-primary">
+                    <i class="fas fa-info-circle me-2"></i>Informations système
+                </h5>
+                <div class="row">
+                    <div class="col-6">
+                        <p class="mb-2"><strong>Version :</strong></p>
+                        <p class="mb-2"><strong>Dernière mise à jour :</strong></p>
+                        <p class="mb-0"><strong>Base de données :</strong></p>
+                    </div>
+                    <div class="col-6">
+                        <p class="mb-2">INFA v2.0</p>
+                        <p class="mb-2">{{ moment().format('DD/MM/YYYY') if moment else 'Aujourd\'hui' }}</p>
+                        <p class="mb-0">PostgreSQL</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title text-primary">
+                    <i class="fas fa-tasks me-2"></i>Tâches à effectuer
+                </h5>
+                <ul class="list-unstyled mb-0">
+                    {% if candidatures_en_attente > 0 %}
+                    <li class="mb-2">
+                        <i class="fas fa-circle text-warning me-2"></i>
+                        {{ candidatures_en_attente }} candidature{{ 's' if candidatures_en_attente > 1 else '' }} à traiter
+                    </li>
+                    {% endif %}
+                    {% if messages_non_lus > 0 %}
+                    <li class="mb-2">
+                        <i class="fas fa-circle text-info me-2"></i>
+                        {{ messages_non_lus }} message{{ 's' if messages_non_lus > 1 else '' }} non lu{{ 's' if messages_non_lus > 1 else '' }}
+                    </li>
+                    {% endif %}
+                    {% if candidatures_en_attente == 0 and messages_non_lus == 0 %}
+                    <li class="mb-0">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        Toutes les tâches sont à jour !
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mise à jour automatique des statistiques toutes les 30 secondes
+    setInterval(function() {
+        // Cette fonction pourrait être implémentée pour mettre à jour les stats en temps réel
+        console.log('Actualisation des statistiques...');
+    }, 30000);
+});
+</script>
+{% endblock %}

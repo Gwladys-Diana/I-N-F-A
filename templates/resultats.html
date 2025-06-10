@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}Résultats - {{ super() }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="section bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-5 mb-3">Résultats du concours</h1>
+                <p class="lead">Consultez la liste des candidats retenus pour la session {{ session }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Recherche -->
+<section class="section bg-light-green">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title text-center mb-4">
+                            <i class="fas fa-search me-2"></i>Rechercher un candidat
+                        </h5>
+                        <form method="GET" action="{{ url_for('resultats_recherche') }}">
+                            <div class="input-group">
+                                <input type="text" 
+                                       class="form-control form-control-lg" 
+                                       name="q" 
+                                       placeholder="Nom, prénom ou numéro de dossier..."
+                                       value="{{ request.args.get('q', '') }}"
+                                       required>
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Liste des candidats -->
+<section class="section">
+    <div class="container">
+        {% if candidats %}
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3>Candidats retenus ({{ candidats|length }})</h3>
+                        <div class="text-muted">
+                            <i class="fas fa-calendar-alt me-1"></i>Session {{ session }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Regroupement par formation -->
+            {% set formations_groupees = candidats|groupby('formation.nom') %}
+            {% for formation_nom, candidats_formation in formations_groupees %}
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-graduation-cap me-2"></i>
+                        {{ formation_nom }}
+                        <span class="badge bg-light text-dark ms-2">{{ candidats_formation|list|length }} candidat(s)</span>
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Numéro de dossier</th>
+                                    <th>Nom et Prénom</th>
+                                    <th>Date de naissance</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for candidat in candidats_formation %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ candidat.numero_dossier }}</span>
+                                    </td>
+                                    <td>
+                                        <strong>{{ candidat.nom|upper }} {{ candidat.prenom|title }}</strong>
+                                    </td>
+                                    <td>
+                                        {{ candidat.date_naissance.strftime('%d/%m/%Y') if candidat.date_naissance else '-' }}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check me-1"></i>Admis(e)
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        {% else %}
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body text-center py-5">
+                            <i class="fas fa-list-alt fa-4x text-muted mb-4"></i>
+                            <h4 class="text-muted">Aucun résultat disponible</h4>
+                            <p class="text-muted">
+                                Les résultats du concours pour la session {{ session }} ne sont pas encore publiés.
+                                <br>Veuillez revenir plus tard.
+                            </p>
+                            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                                <i class="fas fa-home me-2"></i>Retour à l'accueil
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Informations importantes -->
+<section class="section bg-light-green">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title text-center">
+                            <i class="fas fa-info-circle text-primary me-2"></i>
+                            Informations importantes
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-check-circle text-success me-3 mt-1"></i>
+                                    <div>
+                                        <h6 class="mb-1">Candidats admis</h6>
+                                        <p class="mb-0 small text-muted">
+                                            Si votre nom figure sur cette liste, félicitations ! Vous recevrez bientôt les instructions pour votre inscription.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-envelope text-info me-3 mt-1"></i>
+                                    <div>
+                                        <h6 class="mb-1">Notification</h6>
+                                        <p class="mb-0 small text-muted">
+                                            Tous les candidats seront informés individuellement par email du résultat de leur candidature.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-calendar-alt text-warning me-3 mt-1"></i>
+                                    <div>
+                                        <h6 class="mb-1">Délais d'inscription</h6>
+                                        <p class="mb-0 small text-muted">
+                                            Les candidats admis ont 15 jours pour confirmer leur inscription après réception de la convocation.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-question-circle text-primary me-3 mt-1"></i>
+                                    <div>
+                                        <h6 class="mb-1">Questions</h6>
+                                        <p class="mb-0 small text-muted">
+                                            Pour toute question concernant les résultats, contactez notre service administratif.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 mx-auto text-center">
+                <h4>Besoin d'aide ?</h4>
+                <p class="text-muted mb-4">
+                    Si vous ne trouvez pas votre nom ou si vous avez des questions concernant les résultats, 
+                    n'hésitez pas à nous contacter.
+                </p>
+                <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-envelope me-2"></i>Nous contacter
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Surligner les résultats de recherche
+    const searchQuery = "{{ request.args.get('q', '') }}";
+    if (searchQuery) {
+        const regex = new RegExp(`(${searchQuery})`, 'gi');
+        
+        document.querySelectorAll('td').forEach(cell => {
+            if (cell.textContent.toLowerCase().includes(searchQuery.toLowerCase())) {
+                cell.innerHTML = cell.innerHTML.replace(regex, '<mark>$1</mark>');
+            }
+        });
+    }
+    
+    // Animation des cartes
+    const cards = document.querySelectorAll('.card');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '0';
+                entry.target.style.transform = 'translateY(20px)';
+                entry.target.style.transition = 'all 0.6s ease';
+                
+                setTimeout(() => {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }, 100);
+                
+                observer.unobserve(entry.target);
+            }
+        });
+    });
+    
+    cards.forEach(card => observer.observe(card));
+});
+</script>
+{% endblock %}

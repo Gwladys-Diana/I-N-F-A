@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Administration - INFA Tové{% endblock %}</title>
+    
+    <!-- Meta tags -->
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Interface d'administration INFA Tové">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom Admin CSS -->
+    <link href="{{ url_for('static', filename='css/admin.css') }}" rel="stylesheet">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="admin-body">
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <nav class="admin-sidebar" id="adminSidebar">
+            <div class="sidebar-header">
+                <a href="{{ url_for('admin.dashboard') }}" class="sidebar-logo">
+                    <i class="fas fa-seedling"></i>
+                    <span class="menu-text">INFA Admin</span>
+                </a>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if request.endpoint == 'admin.dashboard' else '' }}">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span class="menu-text">Tableau de bord</span>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="{{ url_for('admin.candidatures') }}" class="{{ 'active' if 'candidature' in request.endpoint else '' }}">
+                        <i class="fas fa-users"></i>
+                        <span class="menu-text">Candidatures</span>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="{{ url_for('admin.formations') }}" class="{{ 'active' if 'formation' in request.endpoint else '' }}">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span class="menu-text">Formations</span>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="{{ url_for('admin.actualites') }}" class="{{ 'active' if 'actualite' in request.endpoint else '' }}">
+                        <i class="fas fa-newspaper"></i>
+                        <span class="menu-text">Actualités</span>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="{{ url_for('admin.equipe') }}" class="{{ 'active' if 'equipe' in request.endpoint or 'membre' in request.endpoint else '' }}">
+                        <i class="fas fa-user-tie"></i>
+                        <span class="menu-text">Équipe</span>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="{{ url_for('admin.resultats') }}" class="{{ 'active' if 'resultats' in request.endpoint else '' }}">
+                        <i class="fas fa-trophy"></i>
+                        <span class="menu-text">Résultats</span>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="{{ url_for('admin.messages') }}" class="{{ 'active' if 'messages' in request.endpoint else '' }}">
+                        <i class="fas fa-envelope"></i>
+                        <span class="menu-text">Messages</span>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="{{ url_for('admin.configuration') }}" class="{{ 'active' if 'configuration' in request.endpoint else '' }}">
+                        <i class="fas fa-cog"></i>
+                        <span class="menu-text">Configuration</span>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="{{ url_for('index') }}" target="_blank">
+                        <i class="fas fa-external-link-alt"></i>
+                        <span class="menu-text">Voir le site</span>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="{{ url_for('admin.logout') }}">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span class="menu-text">Déconnexion</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Header -->
+            <header class="admin-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            {% block breadcrumb %}
+                            <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Accueil</a></li>
+                            <li class="breadcrumb-item active">Administration</li>
+                            {% endblock %}
+                        </ol>
+                    </nav>
+                </div>
+                
+                <div class="header-right">
+                    <div class="user-menu">
+                        <div class="user-avatar" data-bs-toggle="dropdown">
+                            {{ current_user.prenom[0] if current_user.prenom else current_user.username[0] }}{{ current_user.nom[0] if current_user.nom else '' }}
+                        </div>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <span class="dropdown-item-text">
+                                    <strong>{{ current_user.prenom or current_user.username }} {{ current_user.nom or '' }}</strong><br>
+                                    <small class="text-muted">{{ current_user.email }}</small>
+                                </span>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('admin.logout') }}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="admin-content">
+                        {% for category, message in messages %}
+                            <div class="alert-admin alert-admin-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                                {% if category == 'success' %}
+                                    <i class="fas fa-check-circle me-2"></i>
+                                {% elif category == 'warning' %}
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                {% elif category == 'error' %}
+                                    <i class="fas fa-times-circle me-2"></i>
+                                {% else %}
+                                    <i class="fas fa-info-circle me-2"></i>
+                                {% endif %}
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- Content -->
+            <div class="admin-content">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    
+    <!-- Custom Admin JS -->
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

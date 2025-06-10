@@ -1,0 +1,364 @@
+{% extends "base.html" %}
+
+{% block title %}{{ formation.nom }} - Formations - {{ super() }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="section bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-6 mb-3">{{ formation.nom }}</h1>
+                {% if formation.duree %}
+                <p class="lead">Formation de {{ formation.duree }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Détails de la formation -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Description -->
+                {% if formation.description %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title text-primary">
+                            <i class="fas fa-info-circle me-2"></i>Description de la formation
+                        </h3>
+                        <p class="card-text lead">{{ formation.description }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Objectifs -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title text-primary">
+                            <i class="fas fa-bullseye me-2"></i>Objectifs de la formation
+                        </h3>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Maîtriser les techniques agricoles modernes
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Comprendre les enjeux du développement durable
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Développer des compétences entrepreneuriales
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Acquérir une expertise technique spécialisée
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Savoir gérer un projet agricole
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Être capable d'innover dans le secteur
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Programme -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title text-primary">
+                            <i class="fas fa-list-alt me-2"></i>Programme de formation
+                        </h3>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <h5 class="text-secondary">Modules fondamentaux</h5>
+                                <ul>
+                                    <li>Sciences du sol et fertilisation</li>
+                                    <li>Biologie végétale et génétique</li>
+                                    <li>Techniques de production végétale</li>
+                                    <li>Protection des cultures</li>
+                                    <li>Gestion de l'eau et irrigation</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <h5 class="text-secondary">Modules spécialisés</h5>
+                                <ul>
+                                    <li>Agriculture biologique</li>
+                                    <li>Agroécologie</li>
+                                    <li>Mécanisation agricole</li>
+                                    <li>Post-récolte et transformation</li>
+                                    <li>Marketing agricole</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="alert alert-info" role="alert">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Le programme détaillé est disponible sur demande auprès de notre service des admissions.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Débouchés -->
+                {% if formation.debouches %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title text-primary">
+                            <i class="fas fa-briefcase me-2"></i>Débouchés professionnels
+                        </h3>
+                        <p class="card-text">{{ formation.debouches }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Méthodes pédagogiques -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title text-primary">
+                            <i class="fas fa-chalkboard-teacher me-2"></i>Méthodes pédagogiques
+                        </h3>
+                        <div class="row">
+                            <div class="col-lg-6 mb-3">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="fas fa-book fa-2x text-primary me-3"></i>
+                                    <div>
+                                        <h6 class="mb-1">Cours théoriques</h6>
+                                        <small class="text-muted">40% du temps de formation</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 mb-3">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="fas fa-tools fa-2x text-primary me-3"></i>
+                                    <div>
+                                        <h6 class="mb-1">Travaux pratiques</h6>
+                                        <small class="text-muted">40% du temps de formation</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 mb-3">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="fas fa-industry fa-2x text-primary me-3"></i>
+                                    <div>
+                                        <h6 class="mb-1">Stages en entreprise</h6>
+                                        <small class="text-muted">20% du temps de formation</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 mb-3">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="fas fa-users fa-2x text-primary me-3"></i>
+                                    <div>
+                                        <h6 class="mb-1">Projets de groupe</h6>
+                                        <small class="text-muted">Transversal</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Informations pratiques -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>Informations pratiques
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if formation.duree %}
+                        <div class="mb-3">
+                            <strong class="text-primary">Durée :</strong><br>
+                            {{ formation.duree }}
+                        </div>
+                        {% endif %}
+
+                        {% if formation.niveau_requis %}
+                        <div class="mb-3">
+                            <strong class="text-primary">Niveau requis :</strong><br>
+                            {{ formation.niveau_requis }}
+                        </div>
+                        {% endif %}
+
+                        {% if formation.places_disponibles %}
+                        <div class="mb-3">
+                            <strong class="text-primary">Places disponibles :</strong><br>
+                            {{ formation.places_disponibles }} étudiants
+                        </div>
+                        {% endif %}
+
+                        {% if formation.prix and formation.prix > 0 %}
+                        <div class="mb-3">
+                            <strong class="text-primary">Coût de la formation :</strong><br>
+                            {{ formation.prix|int }} FCFA
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <strong class="text-primary">Modalités :</strong><br>
+                            Formation en présentiel
+                        </div>
+
+                        <div class="mb-0">
+                            <strong class="text-primary">Diplôme délivré :</strong><br>
+                            Certificat reconnu par l'État
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Candidature -->
+                <div class="card mb-4">
+                    <div class="card-body text-center">
+                        <h5 class="card-title text-primary">Intéressé par cette formation ?</h5>
+                        <p class="card-text">Candidatez dès maintenant pour rejoindre cette formation.</p>
+                        <a href="{{ url_for('candidature') }}?formation={{ formation.id }}" class="btn btn-primary btn-lg w-100 mb-3">
+                            <i class="fas fa-file-alt me-2"></i>Candidater
+                        </a>
+                        <a href="{{ url_for('contact') }}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-question-circle me-2"></i>Poser une question
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Contact spécialisé -->
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title text-primary">
+                            <i class="fas fa-user-tie me-2"></i>Contact spécialisé
+                        </h6>
+                        <p class="card-text small">
+                            Pour plus d'informations sur cette formation, contactez notre responsable pédagogique.
+                        </p>
+                        <a href="mailto:formations@infa-tove.org" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-envelope me-1"></i>formations@infa-tove.org
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Formations similaires -->
+<section class="section bg-light-green">
+    <div class="container">
+        <h2 class="section-title">Autres formations qui pourraient vous intéresser</h2>
+        <div class="row">
+            {% set autres_formations = [] %}
+            {% for f in range(3) %}
+            <div class="col-lg-4 mb-4">
+                <div class="card formation-card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Formation similaire {{ loop.index }}</h5>
+                        <p class="card-text">Découvrez cette autre formation complémentaire proposée par l'INFA.</p>
+                        <a href="{{ url_for('formations') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-right me-2"></i>Voir toutes les formations
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Témoignages -->
+<section class="section">
+    <div class="container">
+        <h2 class="section-title">Témoignages d'anciens étudiants</h2>
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="https://pixabay.com/get/g595a4a84ee82632fe5189bbd80a6905f2e3a5f989bb00661e7f49003b208f7851108e373c55ce8bb4b52ba93c0caf8585e8c7f803dc1bca63381db118cd6cb81_1280.jpg" 
+                                 alt="Étudiant" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                            <div>
+                                <h6 class="mb-0">Kofi AMEGA</h6>
+                                <small class="text-muted">Promotion 2022</small>
+                            </div>
+                        </div>
+                        <p class="card-text">
+                            "Cette formation m'a donné toutes les clés pour réussir dans l'agriculture moderne. 
+                            Les enseignants sont excellents et les installations de qualité."
+                        </p>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="https://pixabay.com/get/g60882b3447d35d2f94f0e2ac044f08e83b2680793e6bb0d616770e2df5d0b7d98ac8cf4474667cd91b6edd9241a7567d3530ba1a646b95286e23c6e8c41a5b49_1280.jpg" 
+                                 alt="Étudiante" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                            <div>
+                                <h6 class="mb-0">Akosua MENSAH</h6>
+                                <small class="text-muted">Promotion 2023</small>
+                            </div>
+                        </div>
+                        <p class="card-text">
+                            "J'ai pu créer ma propre exploitation grâce aux compétences acquises à l'INFA. 
+                            La formation est très complète et orientée vers la pratique."
+                        </p>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="https://pixabay.com/get/ga7736b0421c45c805ecfc81afe80bf9c5e81834870f4ce5ce7d909949dd89ca500d51e44bcb39cc304b19c92cb22e4837b620d686139edbc9a57e08c3357a679_1280.jpg" 
+                                 alt="Étudiant" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                            <div>
+                                <h6 class="mb-0">Yao KOFFI</h6>
+                                <small class="text-muted">Promotion 2021</small>
+                            </div>
+                        </div>
+                        <p class="card-text">
+                            "L'INFA m'a ouvert les portes d'une carrière passionnante. Je recommande vivement 
+                            cette formation à tous ceux qui s'intéressent à l'agriculture."
+                        </p>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

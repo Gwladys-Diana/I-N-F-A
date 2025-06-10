@@ -1,0 +1,415 @@
+{% extends "base.html" %}
+
+{% block title %}{{ actualite.titre }} - Actualités - {{ super() }}{% endblock %}
+
+{% block content %}
+<!-- Article Header -->
+<section class="section bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="text-center mb-4">
+                    <span class="badge bg-light text-dark fs-6 mb-3">
+                        <i class="fas fa-calendar-alt me-1"></i>
+                        {{ actualite.date_publication.strftime('%d %B %Y') if actualite.date_publication else 'Date non définie' }}
+                    </span>
+                </div>
+                <h1 class="display-5 text-center mb-4">{{ actualite.titre }}</h1>
+                {% if actualite.resume %}
+                <p class="lead text-center">{{ actualite.resume }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Article Content -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Image principale -->
+                {% if actualite.image_filename %}
+                <div class="mb-4">
+                    <img src="{{ url_for('static', filename='uploads/' + actualite.image_filename) }}" 
+                         alt="{{ actualite.titre }}" 
+                         class="img-fluid rounded">
+                </div>
+                {% else %}
+                <div class="mb-4">
+                    <img src="https://pixabay.com/get/g809a70fd2ae054f619b452d972faec25d1a27695bcd82a0380b351164520c7c2d517587a8ac18eabee5fbdc646eab231dc41f86d6c570378a9c3dfc67badaad5_1280.jpg" 
+                         alt="{{ actualite.titre }}" 
+                         class="img-fluid rounded">
+                </div>
+                {% endif %}
+
+                <!-- Contenu de l'article -->
+                <div class="article-content">
+                    {{ actualite.contenu|safe }}
+                </div>
+
+                <!-- Informations de l'article -->
+                <div class="article-meta mt-5 pt-4 border-top">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            {% if actualite.auteur %}
+                            <p class="mb-2">
+                                <i class="fas fa-user text-primary me-2"></i>
+                                <strong>Auteur :</strong> {{ actualite.auteur.prenom }} {{ actualite.auteur.nom }}
+                            </p>
+                            {% endif %}
+                            <p class="mb-0">
+                                <i class="fas fa-clock text-primary me-2"></i>
+                                <strong>Publié le :</strong> {{ actualite.date_publication.strftime('%d %B %Y à %H:%M') if actualite.date_publication else 'Date non définie' }}
+                            </p>
+                        </div>
+                        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                            <!-- Partage social -->
+                            <div class="social-share">
+                                <span class="me-2">Partager :</span>
+                                <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url }}" 
+                                   target="_blank" class="btn btn-outline-primary btn-sm me-1">
+                                    <i class="fab fa-facebook"></i>
+                                </a>
+                                <a href="https://twitter.com/intent/tweet?url={{ request.url }}&text={{ actualite.titre }}" 
+                                   target="_blank" class="btn btn-outline-primary btn-sm me-1">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.url }}" 
+                                   target="_blank" class="btn btn-outline-primary btn-sm">
+                                    <i class="fab fa-linkedin"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation entre articles -->
+                <div class="article-navigation mt-5">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <!-- Article précédent (placeholder) -->
+                            <a href="{{ url_for('actualites') }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Voir toutes les actualités
+                            </a>
+                        </div>
+                        <div class="col-md-6 mt-3 mt-md-0">
+                            <!-- Article suivant (placeholder) -->
+                            <a href="{{ url_for('index') }}" class="btn btn-outline-primary w-100">
+                                Retour à l'accueil
+                                <i class="fas fa-arrow-right ms-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Actualités similaires -->
+                {% if actualites_similaires %}
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-newspaper me-2"></i>Autres actualités
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        {% for autre_actualite in actualites_similaires %}
+                        <div class="border-bottom p-3 {% if not loop.last %}border-bottom{% endif %}">
+                            <h6 class="card-title">
+                                <a href="{{ url_for('actualite_detail', actualite_id=autre_actualite.id) }}" 
+                                   class="text-decoration-none">
+                                    {{ autre_actualite.titre|truncate(60) }}
+                                </a>
+                            </h6>
+                            <p class="card-text small text-muted mb-2">
+                                {{ autre_actualite.resume|truncate(80) if autre_actualite.resume else autre_actualite.contenu|striptags|truncate(80) }}
+                            </p>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar-alt me-1"></i>
+                                {{ autre_actualite.date_publication.strftime('%d %B %Y') if autre_actualite.date_publication else 'Date non définie' }}
+                            </small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ url_for('actualites') }}" class="btn btn-outline-primary btn-sm w-100">
+                            <i class="fas fa-list me-2"></i>Toutes les actualités
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Contact -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title text-primary">
+                            <i class="fas fa-envelope me-2"></i>Nous contacter
+                        </h6>
+                        <p class="card-text small">
+                            Vous avez des questions sur cette actualité ou souhaitez plus d'informations ?
+                        </p>
+                        <a href="{{ url_for('contact') }}" class="btn btn-primary btn-sm w-100">
+                            <i class="fas fa-envelope me-2"></i>Envoyer un message
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Formations -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title text-primary">
+                            <i class="fas fa-graduation-cap me-2"></i>Nos formations
+                        </h6>
+                        <p class="card-text small">
+                            Découvrez nos programmes de formation agricole adaptés à vos besoins.
+                        </p>
+                        <a href="{{ url_for('formations') }}" class="btn btn-outline-primary btn-sm w-100">
+                            <i class="fas fa-list me-2"></i>Voir les formations
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Newsletter -->
+                <div class="card bg-light-green">
+                    <div class="card-body text-center">
+                        <i class="fas fa-bell fa-2x text-primary mb-3"></i>
+                        <h6 class="card-title">Restez informé</h6>
+                        <p class="card-text small">
+                            Suivez nos actualités pour ne rien manquer des nouvelles de l'INFA.
+                        </p>
+                        {% if site_config.facebook or site_config.twitter or site_config.linkedin %}
+                        <div class="d-flex justify-content-center gap-2">
+                            {% if site_config.facebook %}
+                            <a href="{{ site_config.facebook }}" class="btn btn-outline-primary btn-sm" target="_blank">
+                                <i class="fab fa-facebook"></i>
+                            </a>
+                            {% endif %}
+                            {% if site_config.twitter %}
+                            <a href="{{ site_config.twitter }}" class="btn btn-outline-primary btn-sm" target="_blank">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            {% endif %}
+                            {% if site_config.linkedin %}
+                            <a href="{{ site_config.linkedin }}" class="btn btn-outline-primary btn-sm" target="_blank">
+                                <i class="fab fa-linkedin"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Articles similaires (section complète) -->
+{% if actualites_similaires %}
+<section class="section bg-light-green">
+    <div class="container">
+        <h2 class="section-title">Autres actualités récentes</h2>
+        <div class="row">
+            {% for autre_actualite in actualites_similaires %}
+            <div class="col-lg-4 mb-4">
+                <div class="card actualite-card h-100">
+                    {% if autre_actualite.image_filename %}
+                    <div class="actualite-image" style="background-image: url('{{ url_for('static', filename='uploads/' + autre_actualite.image_filename) }}')">
+                        <div class="actualite-date">
+                            {{ autre_actualite.date_publication.strftime('%d') if autre_actualite.date_publication else '' }}<br>
+                            <small>{{ autre_actualite.date_publication.strftime('%b') if autre_actualite.date_publication else '' }}</small>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="actualite-image" style="background-image: url('https://pixabay.com/get/g809a70fd2ae054f619b452d972faec25d1a27695bcd82a0380b351164520c7c2d517587a8ac18eabee5fbdc646eab231dc41f86d6c570378a9c3dfc67badaad5_1280.jpg')">
+                        <div class="actualite-date">
+                            {{ autre_actualite.date_publication.strftime('%d') if autre_actualite.date_publication else '' }}<br>
+                            <small>{{ autre_actualite.date_publication.strftime('%b') if autre_actualite.date_publication else '' }}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <h5 class="card-title">{{ autre_actualite.titre }}</h5>
+                        <p class="card-text">{{ autre_actualite.resume|truncate(100) if autre_actualite.resume else autre_actualite.contenu|striptags|truncate(100) }}</p>
+                        <a href="{{ url_for('actualite_detail', actualite_id=autre_actualite.id) }}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-right me-2"></i>Lire la suite
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Call to Action -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h3>Intéressé par l'INFA ?</h3>
+                <p class="lead mb-4">
+                    Découvrez nos formations et rejoignez notre communauté d'étudiants passionnés par l'agriculture.
+                </p>
+                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                    <a href="{{ url_for('candidature') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-file-alt me-2"></i>Candidater
+                    </a>
+                    <a href="{{ url_for('formations') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-graduation-cap me-2"></i>Nos formations
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.article-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--text-dark);
+}
+
+.article-content p {
+    margin-bottom: 1.5rem;
+}
+
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.article-content h5,
+.article-content h6 {
+    color: var(--primary-green);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.article-content blockquote {
+    border-left: 4px solid var(--primary-green);
+    padding-left: 1.5rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    background-color: var(--bg-light);
+    padding: 1rem 1rem 1rem 2rem;
+    border-radius: 0 5px 5px 0;
+}
+
+.article-content ul,
+.article-content ol {
+    margin-bottom: 1.5rem;
+    padding-left: 2rem;
+}
+
+.article-content li {
+    margin-bottom: 0.5rem;
+}
+
+.article-meta {
+    background-color: var(--bg-light);
+    padding: 1.5rem;
+    border-radius: 10px;
+}
+
+.social-share a {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.article-navigation .btn {
+    border-radius: 25px;
+    padding: 0.75rem 1.5rem;
+}
+
+/* Style pour les images dans le contenu */
+.article-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin: 1.5rem 0;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Style pour les liens dans le contenu */
+.article-content a {
+    color: var(--secondary-green);
+    font-weight: 500;
+}
+
+.article-content a:hover {
+    color: var(--primary-green);
+    text-decoration: underline;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation d'apparition du contenu
+    const elements = document.querySelectorAll('.card, .article-content, .article-meta');
+    
+    elements.forEach((element, index) => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(20px)';
+        element.style.transition = 'all 0.6s ease';
+        
+        setTimeout(() => {
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+        }, index * 150);
+    });
+    
+    // Smooth scroll pour les liens internes
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+    
+    // Amélioration des liens de partage
+    document.querySelectorAll('.social-share a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const url = this.href;
+            window.open(url, 'share', 'width=600,height=400,scrollbars=yes,resizable=yes');
+        });
+    });
+    
+    // Lecture estimée (optionnel)
+    const content = document.querySelector('.article-content');
+    if (content) {
+        const wordCount = content.textContent.split(' ').length;
+        const readingTime = Math.ceil(wordCount / 200); // 200 mots par minute
+        
+        if (readingTime > 1) {
+            const readingInfo = document.createElement('div');
+            readingInfo.className = 'alert alert-info mb-4';
+            readingInfo.innerHTML = `
+                <i class="fas fa-clock me-2"></i>
+                Temps de lecture estimé : ${readingTime} minute${readingTime > 1 ? 's' : ''}
+            `;
+            content.parentNode.insertBefore(readingInfo, content);
+        }
+    }
+});
+</script>
+{% endblock %}

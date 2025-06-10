@@ -1,0 +1,253 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Formations - {{ super() }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Accueil</a></li>
+<li class="breadcrumb-item active">Formations</li>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">Gestion des formations</h1>
+        <p class="page-subtitle">{{ formations|length }} formation{{ 's' if formations|length > 1 else '' }} au catalogue</p>
+    </div>
+    <div>
+        <a href="{{ url_for('admin.nouvelle_formation') }}" class="btn-admin btn-admin-primary">
+            <i class="fas fa-plus me-1"></i>Nouvelle formation
+        </a>
+    </div>
+</div>
+
+<!-- Statistiques rapides -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card success">
+            <div class="stat-header">
+                <span class="stat-title">Formations actives</span>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ formations|selectattr('is_active')|list|length }}</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card warning">
+            <div class="stat-header">
+                <span class="stat-title">Formations inactives</span>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);">
+                    <i class="fas fa-pause-circle"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ formations|rejectattr('is_active')|list|length }}</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card info">
+            <div class="stat-header">
+                <span class="stat-title">Places totales</span>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #17a2b8 0%, #007bff 100%);">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ formations|sum(attribute='places_disponibles') or 0 }}</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">Candidatures total</span>
+                <div class="stat-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ formations|sum(attribute='candidatures')|length if formations else 0 }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Liste des formations -->
+<div class="admin-table-container">
+    <div class="table-header">
+        <h3 class="table-title">Catalogue des formations</h3>
+        <div class="table-actions">
+            <button class="btn-admin btn-admin-outline btn-admin-sm" onclick="exportTableData('formationsTable', 'formations_infa')">
+                <i class="fas fa-download me-1"></i>Exporter
+            </button>
+        </div>
+    </div>
+    
+    {% if formations %}
+    <div class="table-responsive">
+        <table class="admin-table data-table" id="formationsTable">
+            <thead>
+                <tr>
+                    <th>Formation</th>
+                    <th>Durée</th>
+                    <th>Niveau requis</th>
+                    <th>Places</th>
+                    <th>Prix (FCFA)</th>
+                    <th>Candidatures</th>
+                    <th>Statut</th>
+                    <th class="no-sort">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for formation in formations %}
+                <tr>
+                    <td>
+                        <div>
+                            <strong class="text-primary">{{ formation.nom }}</strong>
+                            {% if formation.description %}
+                            <br><small class="text-muted">{{ formation.description|truncate(50) }}</small>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-secondary">{{ formation.duree or 'Non définie' }}</span>
+                    </td>
+                    <td>{{ formation.niveau_requis or '-' }}</td>
+                    <td>
+                        {% if formation.places_disponibles %}
+                            <span class="badge bg-info">{{ formation.places_disponibles }} places</span>
+                        {% else %}
+                            <span class="text-muted">Non défini</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if formation.prix and formation.prix > 0 %}
+                            {{ "{:,.0f}".format(formation.prix) }} FCFA
+                        {% else %}
+                            <span class="text-muted">Gratuit</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge bg-primary">{{ formation.candidatures|length }}</span>
+                    </td>
+                    <td>
+                        {% if formation.is_active %}
+                            <span class="status-badge status-active">Active</span>
+                        {% else %}
+                            <span class="status-badge status-pending">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="{{ url_for('formation_detail', formation_id=formation.id) }}" 
+                               target="_blank"
+                               class="btn-admin btn-admin-sm btn-admin-outline" 
+                               data-tooltip="Voir sur le site">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                            <a href="{{ url_for('admin.modifier_formation', formation_id=formation.id) }}" 
+                               class="btn-admin btn-admin-sm btn-admin-primary" 
+                               data-tooltip="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            {% if formation.candidatures|length == 0 %}
+                            <button class="btn-admin btn-admin-sm btn-admin-danger" 
+                                    onclick="confirmerSuppression('{{ formation.nom }}', '{{ url_for('admin.supprimer_formation', formation_id=formation.id) }}')"
+                                    data-tooltip="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-graduation-cap fa-4x text-muted mb-3"></i>
+        <h4 class="text-muted">Aucune formation dans le catalogue</h4>
+        <p class="text-muted">Commencez par ajouter votre première formation.</p>
+        <a href="{{ url_for('admin.nouvelle_formation') }}" class="btn-admin btn-admin-primary">
+            <i class="fas fa-plus me-2"></i>Créer la première formation
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal-admin" id="suppressionModal">
+    <div class="modal-content-admin">
+        <div class="modal-header-admin">
+            <h4 class="modal-title-admin">Confirmer la suppression</h4>
+            <button class="modal-close" onclick="closeModal('suppressionModal')">&times;</button>
+        </div>
+        <div class="modal-body-admin">
+            <div class="text-center">
+                <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                <p>Êtes-vous sûr de vouloir supprimer la formation :</p>
+                <h5 id="formationNom" class="text-primary"></h5>
+                <p class="text-muted">Cette action est irréversible.</p>
+            </div>
+        </div>
+        <div class="modal-footer-admin">
+            <button type="button" class="btn-admin btn-admin-outline" onclick="closeModal('suppressionModal')">
+                Annuler
+            </button>
+            <form id="suppressionForm" method="POST" style="display: inline;">
+                <button type="submit" class="btn-admin btn-admin-danger">
+                    <i class="fas fa-trash me-1"></i>Supprimer définitivement
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmerSuppression(nomFormation, urlSuppression) {
+    document.getElementById('formationNom').textContent = nomFormation;
+    document.getElementById('suppressionForm').action = urlSuppression;
+    openModal('suppressionModal');
+}
+
+function openModal(modalId) {
+    document.getElementById(modalId).classList.add('show');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('show');
+}
+
+// Animation des cartes de statistiques
+document.addEventListener('DOMContentLoaded', function() {
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'all 0.6s ease';
+        
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+    
+    // Animation du tableau
+    const table = document.querySelector('.admin-table-container');
+    if (table) {
+        setTimeout(() => {
+            table.style.opacity = '0';
+            table.style.transform = 'translateY(30px)';
+            table.style.transition = 'all 0.6s ease';
+            
+            setTimeout(() => {
+                table.style.opacity = '1';
+                table.style.transform = 'translateY(0)';
+            }, 50);
+        }, 400);
+    }
+});
+</script>
+{% endblock %}

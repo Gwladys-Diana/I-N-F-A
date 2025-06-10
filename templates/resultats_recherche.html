@@ -1,0 +1,364 @@
+{% extends "base.html" %}
+
+{% block title %}Résultats de recherche - {{ super() }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="section bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-5 mb-3">Résultats de recherche</h1>
+                <p class="lead">Recherche pour : "<strong>{{ query }}</strong>"</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Nouvelle recherche -->
+<section class="section bg-light-green">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title text-center mb-4">
+                            <i class="fas fa-search me-2"></i>Effectuer une nouvelle recherche
+                        </h5>
+                        <form method="GET" action="{{ url_for('resultats_recherche') }}">
+                            <div class="input-group">
+                                <input type="text" 
+                                       class="form-control form-control-lg" 
+                                       name="q" 
+                                       placeholder="Nom, prénom ou numéro de dossier..."
+                                       value="{{ query }}"
+                                       required>
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Résultats -->
+<section class="section">
+    <div class="container">
+        {% if candidats %}
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3>{{ candidats|length }} résultat(s) trouvé(s)</h3>
+                        <a href="{{ url_for('resultats') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-list me-1"></i>Voir tous les résultats
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {% if candidats|length == 1 %}
+                <!-- Résultat unique - Affichage détaillé -->
+                {% set candidat = candidats[0] %}
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="card border-success">
+                            <div class="card-header bg-success text-white text-center">
+                                <h4 class="mb-0">
+                                    <i class="fas fa-trophy me-2"></i>Candidat trouvé !
+                                </h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <strong class="text-primary">Numéro de dossier :</strong><br>
+                                        <span class="badge bg-primary fs-6">{{ candidat.numero_dossier }}</span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <strong class="text-primary">Statut :</strong><br>
+                                        <span class="badge bg-success fs-6">
+                                            <i class="fas fa-check me-1"></i>Admis(e)
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <hr>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <strong class="text-primary">Nom et Prénom :</strong><br>
+                                        <span class="h5">{{ candidat.nom|upper }} {{ candidat.prenom|title }}</span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <strong class="text-primary">Date de naissance :</strong><br>
+                                        {{ candidat.date_naissance.strftime('%d %B %Y') if candidat.date_naissance else 'Non renseignée' }}
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <strong class="text-primary">Formation :</strong><br>
+                                        <span class="h6 text-secondary">{{ candidat.formation.nom if candidat.formation else 'Non spécifiée' }}</span>
+                                    </div>
+                                </div>
+                                
+                                {% if candidat.session_concours %}
+                                <div class="alert alert-info" role="alert">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Session de concours :</strong> {{ candidat.session_concours }}
+                                </div>
+                                {% endif %}
+                                
+                                <div class="alert alert-success" role="alert">
+                                    <h6 class="alert-heading">
+                                        <i class="fas fa-celebration me-2"></i>Félicitations !
+                                    </h6>
+                                    <p class="mb-0">
+                                        Vous êtes admis(e) à l'INFA de Tové. Vous recevrez bientôt les instructions 
+                                        pour finaliser votre inscription. Vérifiez votre boîte email régulièrement.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            {% else %}
+                <!-- Plusieurs résultats - Affichage en tableau -->
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-success">
+                                    <tr>
+                                        <th>Numéro de dossier</th>
+                                        <th>Nom et Prénom</th>
+                                        <th>Formation</th>
+                                        <th>Date de naissance</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for candidat in candidats %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-primary">{{ candidat.numero_dossier }}</span>
+                                        </td>
+                                        <td>
+                                            <strong>{{ candidat.nom|upper }} {{ candidat.prenom|title }}</strong>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted">{{ candidat.formation.nom if candidat.formation else 'Non spécifiée' }}</span>
+                                        </td>
+                                        <td>
+                                            {{ candidat.date_naissance.strftime('%d/%m/%Y') if candidat.date_naissance else '-' }}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>Admis(e)
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+        {% else %}
+            <!-- Aucun résultat -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body text-center py-5">
+                            <i class="fas fa-search fa-4x text-muted mb-4"></i>
+                            <h4 class="text-muted">Aucun résultat trouvé</h4>
+                            <p class="text-muted mb-4">
+                                Aucun candidat admis ne correspond à votre recherche "<strong>{{ query }}</strong>".
+                            </p>
+                            
+                            <div class="alert alert-info d-inline-block" role="alert">
+                                <h6 class="alert-heading">Suggestions :</h6>
+                                <ul class="mb-0 text-start">
+                                    <li>Vérifiez l'orthographe de votre recherche</li>
+                                    <li>Essayez avec le nom ou le prénom seulement</li>
+                                    <li>Utilisez le numéro de dossier complet</li>
+                                    <li>Consultez la liste complète des admis</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <a href="{{ url_for('resultats') }}" class="btn btn-primary me-3">
+                                    <i class="fas fa-list me-2"></i>Voir tous les admis
+                                </a>
+                                <a href="{{ url_for('contact') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-envelope me-2"></i>Nous contacter
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Informations complémentaires -->
+<section class="section bg-light-green">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title text-center">
+                            <i class="fas fa-info-circle text-primary me-2"></i>
+                            Informations importantes
+                        </h5>
+                        
+                        {% if candidats %}
+                        <div class="alert alert-success" role="alert">
+                            <h6 class="alert-heading">Candidat(s) admis trouvé(s) !</h6>
+                            <p class="mb-0">
+                                Si vous figurez dans cette liste, félicitations ! Vous recevrez bientôt 
+                                toutes les informations nécessaires pour votre inscription par email.
+                            </p>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-envelope text-info me-3 mt-1"></i>
+                                    <div>
+                                        <h6 class="mb-1">Notification par email</h6>
+                                        <p class="mb-0 small text-muted">
+                                            Tous les candidats sont également informés individuellement du résultat par email.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-calendar-alt text-warning me-3 mt-1"></i>
+                                    <div>
+                                        <h6 class="mb-1">Délai d'inscription</h6>
+                                        <p class="mb-0 small text-muted">
+                                            Les candidats admis ont 15 jours pour confirmer leur inscription.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-phone text-success me-3 mt-1"></i>
+                                    <div>
+                                        <h6 class="mb-1">Contact</h6>
+                                        <p class="mb-0 small text-muted">
+                                            Pour toute question, contactez notre service des admissions.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-refresh text-primary me-3 mt-1"></i>
+                                    <div>
+                                        <h6 class="mb-1">Mise à jour</h6>
+                                        <p class="mb-0 small text-muted">
+                                            Les résultats sont mis à jour régulièrement. Revenez consulter cette page.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Actions -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 mx-auto text-center">
+                <h4>Besoin d'aide ?</h4>
+                <p class="text-muted mb-4">
+                    Si vous ne trouvez pas les informations que vous cherchez ou si vous avez des questions, 
+                    n'hésitez pas à nous contacter.
+                </p>
+                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                    <a href="{{ url_for('contact') }}" class="btn btn-primary">
+                        <i class="fas fa-envelope me-2"></i>Nous contacter
+                    </a>
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-home me-2"></i>Retour à l'accueil
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Surligner les termes de recherche
+    const searchQuery = "{{ query }}";
+    if (searchQuery) {
+        const regex = new RegExp(`(${searchQuery})`, 'gi');
+        
+        // Surligner dans les noms et numéros de dossier
+        document.querySelectorAll('td, .h5, .badge').forEach(element => {
+            if (element.textContent.toLowerCase().includes(searchQuery.toLowerCase())) {
+                element.innerHTML = element.innerHTML.replace(regex, '<mark class="bg-warning">$1</mark>');
+            }
+        });
+    }
+    
+    // Animation des cartes
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'all 0.6s ease';
+        
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 150);
+    });
+    
+    // Copier le numéro de dossier au clic
+    document.querySelectorAll('.badge').forEach(badge => {
+        if (badge.textContent.includes('INFA')) {
+            badge.style.cursor = 'pointer';
+            badge.title = 'Cliquer pour copier le numéro de dossier';
+            
+            badge.addEventListener('click', function() {
+                navigator.clipboard.writeText(this.textContent).then(() => {
+                    // Feedback visuel
+                    const originalText = this.textContent;
+                    const originalClass = this.className;
+                    
+                    this.textContent = 'Copié !';
+                    this.className = 'badge bg-success fs-6';
+                    
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        this.className = originalClass;
+                    }, 2000);
+                });
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

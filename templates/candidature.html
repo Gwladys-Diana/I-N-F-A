@@ -1,0 +1,346 @@
+{% extends "base.html" %}
+
+{% block title %}Candidature - {{ super() }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.form-section {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.form-section h4 {
+    color: var(--primary-green);
+    border-bottom: 2px solid var(--light-green);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.file-upload {
+    border: 2px dashed var(--light-green);
+    border-radius: 10px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.file-upload:hover {
+    border-color: var(--secondary-green);
+    background-color: rgba(74, 124, 89, 0.05);
+}
+
+.file-upload.drag-over {
+    border-color: var(--primary-green);
+    background-color: rgba(45, 90, 39, 0.1);
+}
+
+.required-field {
+    color: var(--danger);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="section bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-5 mb-3">Candidature en ligne</h1>
+                <p class="lead">Remplissez le formulaire ci-dessous pour soumettre votre candidature</p>
+                
+                {% if config and config.session_concours_actuelle %}
+                <div class="alert alert-light" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Session de concours: <strong>{{ config.session_concours_actuelle }}</strong>
+                    {% if config.date_limite_candidature %}
+                    <br>Date limite: <strong>{{ config.date_limite_candidature.strftime('%d %B %Y') }}</strong>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Formulaire de candidature -->
+<section class="section">
+    <div class="container">
+        {% if not config or not config.candidatures_ouvertes %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-warning text-center" role="alert">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                    <h4>Candidatures fermées</h4>
+                    <p>Les candidatures ne sont pas ouvertes actuellement. Veuillez revenir plus tard ou nous contacter pour plus d'informations.</p>
+                    <a href="{{ url_for('contact') }}" class="btn btn-primary">
+                        <i class="fas fa-envelope me-2"></i>Nous contacter
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        
+        <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+            {{ form.hidden_tag() }}
+            
+            <!-- Informations personnelles -->
+            <div class="form-section">
+                <h4><i class="fas fa-user me-2"></i>Informations personnelles</h4>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form.nom.label(class="form-label") }}<span class="required-field">*</span>
+                        {{ form.nom(class="form-control") }}
+                        {% if form.nom.errors %}
+                            <div class="invalid-feedback d-block">{{ form.nom.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ form.prenom.label(class="form-label") }}<span class="required-field">*</span>
+                        {{ form.prenom(class="form-control") }}
+                        {% if form.prenom.errors %}
+                            <div class="invalid-feedback d-block">{{ form.prenom.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form.date_naissance.label(class="form-label") }}<span class="required-field">*</span>
+                        {{ form.date_naissance(class="form-control") }}
+                        {% if form.date_naissance.errors %}
+                            <div class="invalid-feedback d-block">{{ form.date_naissance.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ form.lieu_naissance.label(class="form-label") }}<span class="required-field">*</span>
+                        {{ form.lieu_naissance(class="form-control") }}
+                        {% if form.lieu_naissance.errors %}
+                            <div class="invalid-feedback d-block">{{ form.lieu_naissance.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form.sexe.label(class="form-label") }}<span class="required-field">*</span>
+                        {{ form.sexe(class="form-select") }}
+                        {% if form.sexe.errors %}
+                            <div class="invalid-feedback d-block">{{ form.sexe.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ form.nationalite.label(class="form-label") }}<span class="required-field">*</span>
+                        {{ form.nationalite(class="form-control") }}
+                        {% if form.nationalite.errors %}
+                            <div class="invalid-feedback d-block">{{ form.nationalite.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact -->
+            <div class="form-section">
+                <h4><i class="fas fa-address-book me-2"></i>Coordonnées</h4>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form.telephone.label(class="form-label") }}<span class="required-field">*</span>
+                        {{ form.telephone(class="form-control", placeholder="Ex: +228 XX XX XX XX") }}
+                        {% if form.telephone.errors %}
+                            <div class="invalid-feedback d-block">{{ form.telephone.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ form.email.label(class="form-label") }}<span class="required-field">*</span>
+                        {{ form.email(class="form-control", placeholder="exemple@email.com") }}
+                        {% if form.email.errors %}
+                            <div class="invalid-feedback d-block">{{ form.email.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.adresse.label(class="form-label") }}<span class="required-field">*</span>
+                    {{ form.adresse(class="form-control", rows="3") }}
+                    {% if form.adresse.errors %}
+                        <div class="invalid-feedback d-block">{{ form.adresse.errors[0] }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Formation -->
+            <div class="form-section">
+                <h4><i class="fas fa-graduation-cap me-2"></i>Formation souhaitée</h4>
+                <div class="row">
+                    <div class="col-md-8 mb-3">
+                        {{ form.formation_id.label(class="form-label") }}<span class="required-field">*</span>
+                        {{ form.formation_id(class="form-select") }}
+                        {% if form.formation_id.errors %}
+                            <div class="invalid-feedback d-block">{{ form.formation_id.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        {{ form.niveau_etude.label(class="form-label") }}<span class="required-field">*</span>
+                        {{ form.niveau_etude(class="form-control", placeholder="Ex: BAC, BEPC") }}
+                        {% if form.niveau_etude.errors %}
+                            <div class="invalid-feedback d-block">{{ form.niveau_etude.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.etablissement_origine.label(class="form-label") }}
+                    {{ form.etablissement_origine(class="form-control", placeholder="Nom de votre dernier établissement") }}
+                    {% if form.etablissement_origine.errors %}
+                        <div class="invalid-feedback d-block">{{ form.etablissement_origine.errors[0] }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Documents -->
+            <div class="form-section">
+                <h4><i class="fas fa-file-upload me-2"></i>Documents à joindre</h4>
+                <p class="text-muted mb-4">Veuillez joindre les documents suivants (formats acceptés: PDF, JPG, PNG - Taille max: 16MB par fichier)</p>
+                
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <label class="form-label">{{ form.cv.label.text }}</label>
+                        <div class="file-upload">
+                            {{ form.cv(class="d-none") }}
+                            <div class="file-upload-label">
+                                <i class="fas fa-cloud-upload-alt fa-2x text-primary mb-2"></i>
+                                <p class="mb-0">Cliquez ou glissez votre CV ici</p>
+                                <small class="text-muted">PDF uniquement</small>
+                            </div>
+                        </div>
+                        {% if form.cv.errors %}
+                            <div class="invalid-feedback d-block">{{ form.cv.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <label class="form-label">{{ form.diplome.label.text }}</label>
+                        <div class="file-upload">
+                            {{ form.diplome(class="d-none") }}
+                            <div class="file-upload-label">
+                                <i class="fas fa-cloud-upload-alt fa-2x text-primary mb-2"></i>
+                                <p class="mb-0">Cliquez ou glissez votre diplôme ici</p>
+                                <small class="text-muted">PDF uniquement</small>
+                            </div>
+                        </div>
+                        {% if form.diplome.errors %}
+                            <div class="invalid-feedback d-block">{{ form.diplome.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <label class="form-label">{{ form.photo.label.text }}</label>
+                        <div class="file-upload">
+                            {{ form.photo(class="d-none") }}
+                            <div class="file-upload-label">
+                                <i class="fas fa-cloud-upload-alt fa-2x text-primary mb-2"></i>
+                                <p class="mb-0">Cliquez ou glissez votre photo ici</p>
+                                <small class="text-muted">JPG, PNG uniquement</small>
+                            </div>
+                        </div>
+                        {% if form.photo.errors %}
+                            <div class="invalid-feedback d-block">{{ form.photo.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Soumission -->
+            <div class="form-section">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h5 class="text-primary mb-2">Confirmation</h5>
+                        <p class="text-muted mb-0">
+                            En soumettant ce formulaire, je certifie que toutes les informations fournies sont exactes et je consens au traitement de mes données personnelles dans le cadre de ma candidature.
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
+                    </div>
+                </div>
+            </div>
+        </form>
+        
+        {% endif %}
+    </div>
+</section>
+
+<!-- Aide -->
+<section class="section bg-light-green">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Besoin d'aide ?</h5>
+                        <p class="card-text">Si vous rencontrez des difficultés pour remplir ce formulaire, n'hésitez pas à nous contacter.</p>
+                        <a href="{{ url_for('contact') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-envelope me-2"></i>Nous contacter
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion des uploads de fichiers
+    const fileUploads = document.querySelectorAll('.file-upload');
+    
+    fileUploads.forEach(upload => {
+        const input = upload.querySelector('input[type="file"]');
+        const label = upload.querySelector('.file-upload-label');
+        
+        // Clic sur la zone
+        upload.addEventListener('click', () => input.click());
+        
+        // Changement de fichier
+        input.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                label.innerHTML = `
+                    <i class="fas fa-file-check text-success fa-2x mb-2"></i>
+                    <p class="mb-0 fw-bold">${file.name}</p>
+                    <small class="text-muted">${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+                `;
+            }
+        });
+        
+        // Drag & Drop
+        upload.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+        
+        upload.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+        });
+        
+        upload.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                input.files = files;
+                input.dispatchEvent(new Event('change'));
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

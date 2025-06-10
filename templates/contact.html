@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+
+{% block title %}Contact - {{ super() }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="section bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-5 mb-3">Contactez-nous</h1>
+                <p class="lead">Nous sommes à votre disposition pour répondre à toutes vos questions</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Informations de contact -->
+<section class="section">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-map-marker-alt fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Adresse</h5>
+                        <p class="card-text">
+                            {{ config.adresse if config and config.adresse else "Tové, Région des Plateaux<br>République Togolaise" }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-phone fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Téléphone</h5>
+                        <p class="card-text">
+                            {% if config and config.telephone %}
+                                <a href="tel:{{ config.telephone }}" class="text-decoration-none">{{ config.telephone }}</a>
+                            {% else %}
+                                <a href="tel:+22890123456" class="text-decoration-none">+228 90 12 34 56</a>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-envelope fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Email</h5>
+                        <p class="card-text">
+                            {% if config and config.email %}
+                                <a href="mailto:{{ config.email }}" class="text-decoration-none">{{ config.email }}</a>
+                            {% else %}
+                                <a href="mailto:contact@infa-tove.org" class="text-decoration-none">contact@infa-tove.org</a>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Formulaire de contact -->
+<section class="section bg-light-green">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h3 class="mb-0">
+                            <i class="fas fa-envelope me-2"></i>Envoyez-nous un message
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" class="needs-validation" novalidate>
+                            {{ form.hidden_tag() }}
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.nom.label(class="form-label") }}<span class="text-danger">*</span>
+                                    {{ form.nom(class="form-control", placeholder="Votre nom complet") }}
+                                    {% if form.nom.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.nom.errors[0] }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.email.label(class="form-label") }}<span class="text-danger">*</span>
+                                    {{ form.email(class="form-control", placeholder="votre@email.com") }}
+                                    {% if form.email.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.email.errors[0] }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.sujet.label(class="form-label") }}<span class="text-danger">*</span>
+                                {{ form.sujet(class="form-control", placeholder="Objet de votre message") }}
+                                {% if form.sujet.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.sujet.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-4">
+                                {{ form.message.label(class="form-label") }}<span class="text-danger">*</span>
+                                {{ form.message(class="form-control", rows="6", placeholder="Votre message détaillé...") }}
+                                {% if form.message.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.message.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="text-center">
+                                {{ form.submit(class="btn btn-primary btn-lg") }}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Horaires et informations pratiques -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h4 class="card-title text-primary">
+                            <i class="fas fa-clock me-2"></i>Horaires d'ouverture
+                        </h4>
+                        <div class="row">
+                            <div class="col-6">
+                                <p class="mb-2"><strong>Lundi - Vendredi :</strong></p>
+                                <p class="mb-2"><strong>Samedi :</strong></p>
+                                <p class="mb-0"><strong>Dimanche :</strong></p>
+                            </div>
+                            <div class="col-6">
+                                <p class="mb-2">07h30 - 17h00</p>
+                                <p class="mb-2">08h00 - 12h00</p>
+                                <p class="mb-0">Fermé</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h4 class="card-title text-primary">
+                            <i class="fas fa-info-circle me-2"></i>Informations pratiques
+                        </h4>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Accueil ouvert toute la semaine
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Parking gratuit disponible
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Accessibilité aux personnes à mobilité réduite
+                            </li>
+                            <li class="mb-0">
+                                <i class="fas fa-check text-success me-2"></i>
+                                WiFi gratuit pour les visiteurs
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services de contact spécialisés -->
+<section class="section bg-light-green">
+    <div class="container">
+        <h2 class="section-title">Services spécialisés</h2>
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-user-graduate fa-3x text-primary mb-3"></i>
+                        <h5>Admissions</h5>
+                        <p class="card-text small">
+                            Renseignements sur les formations, candidatures et processus d'admission.
+                        </p>
+                        <a href="mailto:admissions@infa-tove.org" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-envelope me-1"></i>Contact
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-chalkboard-teacher fa-3x text-primary mb-3"></i>
+                        <h5>Vie étudiante</h5>
+                        <p class="card-text small">
+                            Informations sur la vie étudiante, hébergement, restauration et activités.
+                        </p>
+                        <a href="mailto:vie-etudiante@infa-tove.org" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-envelope me-1"></i>Contact
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-handshake fa-3x text-primary mb-3"></i>
+                        <h5>Partenariats</h5>
+                        <p class="card-text small">
+                            Opportunités de partenariat, stages et collaboration avec les entreprises.
+                        </p>
+                        <a href="mailto:partenariats@infa-tove.org" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-envelope me-1"></i>Contact
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-microscope fa-3x text-primary mb-3"></i>
+                        <h5>Recherche</h5>
+                        <p class="card-text small">
+                            Projets de recherche, publications et collaborations scientifiques.
+                        </p>
+                        <a href="mailto:recherche@infa-tove.org" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-envelope me-1"></i>Contact
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Plan d'accès -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h3>Comment nous trouver</h3>
+                <p class="lead mb-4">
+                    L'INFA est situé à Tové, dans la région des Plateaux au Togo. 
+                    L'institut est facilement accessible par transport public et privé.
+                </p>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Directions</h5>
+                        <div class="row text-start">
+                            <div class="col-md-6">
+                                <h6 class="text-primary">Depuis Lomé :</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-car me-2"></i>Route nationale N°5 direction Kpalimé</li>
+                                    <li><i class="fas fa-map-marker-alt me-2"></i>Sortie Tové (35 km de Lomé)</li>
+                                    <li><i class="fas fa-clock me-2"></i>Environ 45 minutes en voiture</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-primary">Transports publics :</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-bus me-2"></i>Taxi-brousse Lomé-Kpalimé</li>
+                                    <li><i class="fas fa-map-marker-alt me-2"></i>Arrêt Tové centre</li>
+                                    <li><i class="fas fa-walking me-2"></i>5 minutes à pied de l'arrêt</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Réseaux sociaux -->
+{% if config and (config.facebook or config.twitter or config.linkedin) %}
+<section class="section bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 mx-auto text-center">
+                <h3>Suivez-nous sur les réseaux sociaux</h3>
+                <p class="lead mb-4">Restez connecté avec l'INFA pour ne rien manquer de nos actualités</p>
+                
+                <div class="d-flex justify-content-center gap-3">
+                    {% if config.facebook %}
+                    <a href="{{ config.facebook }}" class="btn btn-outline-light btn-lg" target="_blank">
+                        <i class="fab fa-facebook fa-2x"></i>
+                    </a>
+                    {% endif %}
+                    {% if config.twitter %}
+                    <a href="{{ config.twitter }}" class="btn btn-outline-light btn-lg" target="_blank">
+                        <i class="fab fa-twitter fa-2x"></i>
+                    </a>
+                    {% endif %}
+                    {% if config.linkedin %}
+                    <a href="{{ config.linkedin }}" class="btn btn-outline-light btn-lg" target="_blank">
+                        <i class="fab fa-linkedin fa-2x"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des cartes de contact
+    const cards = document.querySelectorAll('.card');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.style.opacity = '0';
+                    entry.target.style.transform = 'translateY(20px)';
+                    entry.target.style.transition = 'all 0.5s ease';
+                    
+                    setTimeout(() => {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, 50);
+                }, index * 100);
+                
+                observer.unobserve(entry.target);
+            }
+        });
+    });
+    
+    cards.forEach(card => {
+        observer.observe(card);
+    });
+});
+</script>
+{% endblock %}

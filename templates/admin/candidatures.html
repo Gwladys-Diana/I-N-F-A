@@ -1,0 +1,315 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Candidatures - {{ super() }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Accueil</a></li>
+<li class="breadcrumb-item active">Candidatures</li>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">Gestion des candidatures</h1>
+        <p class="page-subtitle">{{ candidatures.total }} candidature{{ 's' if candidatures.total > 1 else '' }} au total</p>
+    </div>
+    <div>
+        <button class="btn-admin btn-admin-primary" onclick="exportTableData('candidaturesTable', 'candidatures_infa')">
+            <i class="fas fa-download me-1"></i>Exporter CSV
+        </button>
+    </div>
+</div>
+
+<!-- Filtres -->
+<div class="filters-container mb-4">
+    <form method="GET" class="filters-row">
+        <div>
+            <label class="form-label-admin">Statut</label>
+            <select name="statut" class="form-control-admin">
+                <option value="">Tous les statuts</option>
+                <option value="En attente" {{ 'selected' if current_statut == 'En attente' else '' }}>En attente</option>
+                <option value="Accepté" {{ 'selected' if current_statut == 'Accepté' else '' }}>Accepté</option>
+                <option value="Rejeté" {{ 'selected' if current_statut == 'Rejeté' else '' }}>Rejeté</option>
+            </select>
+        </div>
+        
+        <div>
+            <label class="form-label-admin">Formation</label>
+            <select name="formation" class="form-control-admin">
+                <option value="">Toutes les formations</option>
+                {% for formation in formations %}
+                <option value="{{ formation.id }}" {{ 'selected' if current_formation == formation.id else '' }}>
+                    {{ formation.nom }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div>
+            <label class="form-label-admin">Recherche</label>
+            <input type="text" name="search" class="form-control-admin" 
+                   placeholder="Nom, email, numéro..." value="{{ current_search }}">
+        </div>
+        
+        <div>
+            <label class="form-label-admin">&nbsp;</label>
+            <button type="submit" class="btn-admin btn-admin-primary w-100">
+                <i class="fas fa-search me-1"></i>Filtrer
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Tableau des candidatures -->
+<div class="admin-table-container">
+    <div class="table-header">
+        <h3 class="table-title">Liste des candidatures</h3>
+        <div class="table-actions">
+            {% if current_statut or current_formation or current_search %}
+            <a href="{{ url_for('admin.candidatures') }}" class="btn-admin btn-admin-outline btn-admin-sm">
+                <i class="fas fa-times me-1"></i>Effacer filtres
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if candidatures.items %}
+    <div class="table-responsive">
+        <table class="admin-table data-table" id="candidaturesTable">
+            <thead>
+                <tr>
+                    <th class="no-sort">
+                        <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                    </th>
+                    <th>Numéro</th>
+                    <th>Candidat</th>
+                    <th>Formation</th>
+                    <th>Date soumission</th>
+                    <th>Statut</th>
+                    <th class="no-sort">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for candidature in candidatures.items %}
+                <tr>
+                    <td>
+                        <input type="checkbox" name="candidature_ids" value="{{ candidature.id }}" class="candidature-checkbox">
+                    </td>
+                    <td>
+                        <span class="badge bg-secondary">{{ candidature.numero_dossier }}</span>
+                    </td>
+                    <td>
+                        <div>
+                            <strong>{{ candidature.nom|upper }} {{ candidature.prenom|title }}</strong>
+                            <br><small class="text-muted">{{ candidature.email }}</small>
+                            <br><small class="text-muted">{{ candidature.telephone }}</small>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="text-primary">{{ candidature.formation.nom if candidature.formation else 'Non spécifiée' }}</span>
+                    </td>
+                    <td>
+                        {{ candidature.date_soumission.strftime('%d/%m/%Y %H:%M') if candidature.date_soumission else '-' }}
+                    </td>
+                    <td>
+                        {% if candidature.statut == 'En attente' %}
+                            <span class="status-badge status-pending">{{ candidature.statut }}</span>
+                        {% elif candidature.statut == 'Accepté' %}
+                            <span class="status-badge status-accepted">{{ candidature.statut }}</span>
+                        {% elif candidature.statut == 'Rejeté' %}
+                            <span class="status-badge status-rejected">{{ candidature.statut }}</span>
+                        {% else %}
+                            <span class="status-badge status-active">{{ candidature.statut }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="{{ url_for('admin.candidature_detail', candidature_id=candidature.id) }}" 
+                               class="btn-admin btn-admin-sm btn-admin-primary" 
+                               data-tooltip="Voir détails">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            
+                            {% if candidature.statut == 'En attente' %}
+                            <button class="btn-admin btn-admin-sm btn-admin-success" 
+                                    onclick="traiterCandidature({{ candidature.id }}, 'accepter')"
+                                    data-tooltip="Accepter">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn-admin btn-admin-sm btn-admin-danger" 
+                                    onclick="traiterCandidature({{ candidature.id }}, 'rejeter')"
+                                    data-tooltip="Rejeter">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Actions groupées -->
+    <div class="d-flex justify-content-between align-items-center mt-3 p-3 bg-light">
+        <div>
+            <span id="selectedCount">0</span> candidature(s) sélectionnée(s)
+        </div>
+        <div id="bulkActions" style="display: none;">
+            <button class="btn-admin btn-admin-sm btn-admin-success me-2" onclick="bulkAction('accepter')">
+                <i class="fas fa-check me-1"></i>Accepter sélection
+            </button>
+            <button class="btn-admin btn-admin-sm btn-admin-danger" onclick="bulkAction('rejeter')">
+                <i class="fas fa-times me-1"></i>Rejeter sélection
+            </button>
+        </div>
+    </div>
+    
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-search fa-4x text-muted mb-3"></i>
+        <h4 class="text-muted">Aucune candidature trouvée</h4>
+        <p class="text-muted">
+            {% if current_statut or current_formation or current_search %}
+                Aucune candidature ne correspond à vos critères de recherche.
+            {% else %}
+                Aucune candidature n'a encore été soumise.
+            {% endif %}
+        </p>
+        {% if current_statut or current_formation or current_search %}
+        <a href="{{ url_for('admin.candidatures') }}" class="btn-admin btn-admin-primary">
+            <i class="fas fa-list me-2"></i>Voir toutes les candidatures
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Pagination -->
+{% if candidatures.pages > 1 %}
+<div class="pagination-admin">
+    {% if candidatures.has_prev %}
+        <a href="{{ url_for('admin.candidatures', page=candidatures.prev_num, statut=current_statut, formation=current_formation, search=current_search) }}">
+            <i class="fas fa-chevron-left"></i> Précédent
+        </a>
+    {% endif %}
+
+    {% for page_num in candidatures.iter_pages() %}
+        {% if page_num %}
+            {% if page_num != candidatures.page %}
+                <a href="{{ url_for('admin.candidatures', page=page_num, statut=current_statut, formation=current_formation, search=current_search) }}">
+                    {{ page_num }}
+                </a>
+            {% else %}
+                <span class="current">{{ page_num }}</span>
+            {% endif %}
+        {% else %}
+            <span>…</span>
+        {% endif %}
+    {% endfor %}
+
+    {% if candidatures.has_next %}
+        <a href="{{ url_for('admin.candidatures', page=candidatures.next_num, statut=current_statut, formation=current_formation, search=current_search) }}">
+            Suivant <i class="fas fa-chevron-right"></i>
+        </a>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- Modal de traitement -->
+<div class="modal-admin" id="traitementModal">
+    <div class="modal-content-admin">
+        <div class="modal-header-admin">
+            <h4 class="modal-title-admin" id="modalTitle">Traiter la candidature</h4>
+            <button class="modal-close" onclick="closeModal('traitementModal')">&times;</button>
+        </div>
+        <div class="modal-body-admin">
+            <form id="traitementForm" method="POST">
+                <input type="hidden" name="action" id="modalAction">
+                <div class="form-group-admin">
+                    <label class="form-label-admin">Commentaires (optionnel)</label>
+                    <textarea name="commentaires" class="form-control-admin" rows="4" 
+                              placeholder="Ajoutez des commentaires sur cette décision..."></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer-admin">
+            <button type="button" class="btn-admin btn-admin-outline" onclick="closeModal('traitementModal')">
+                Annuler
+            </button>
+            <button type="submit" form="traitementForm" class="btn-admin btn-admin-primary" id="modalSubmitBtn">
+                Confirmer
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedCandidatures = [];
+
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.candidature-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+    });
+    
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    const checkboxes = document.querySelectorAll('.candidature-checkbox:checked');
+    const count = checkboxes.length;
+    
+    document.getElementById('selectedCount').textContent = count;
+    document.getElementById('bulkActions').style.display = count > 0 ? 'block' : 'none';
+    
+    selectedCandidatures = Array.from(checkboxes).map(cb => cb.value);
+}
+
+// Écouter les changements sur les checkboxes
+document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('candidature-checkbox')) {
+        updateSelectedCount();
+    }
+});
+
+function traiterCandidature(candidatureId, action) {
+    const actionText = action === 'accepter' ? 'accepter' : 'rejeter';
+    const actionColor = action === 'accepter' ? 'success' : 'danger';
+    
+    document.getElementById('modalTitle').textContent = `${actionText.charAt(0).toUpperCase() + actionText.slice(1)} la candidature`;
+    document.getElementById('modalAction').value = action;
+    document.getElementById('traitementForm').action = `{{ url_for('admin.traiter_candidature', candidature_id=0) }}`.replace('0', candidatureId);
+    
+    const submitBtn = document.getElementById('modalSubmitBtn');
+    submitBtn.className = `btn-admin btn-admin-${actionColor}`;
+    submitBtn.textContent = actionText.charAt(0).toUpperCase() + actionText.slice(1);
+    
+    openModal('traitementModal');
+}
+
+function bulkAction(action) {
+    if (selectedCandidatures.length === 0) return;
+    
+    const actionText = action === 'accepter' ? 'accepter' : 'rejeter';
+    const message = `Êtes-vous sûr de vouloir ${actionText} ${selectedCandidatures.length} candidature(s) ?`;
+    
+    if (confirm(message)) {
+        // Ici, vous pourriez implémenter l'action groupée
+        alert(`Action "${actionText}" sur ${selectedCandidatures.length} candidature(s) - À implémenter`);
+    }
+}
+
+function openModal(modalId) {
+    document.getElementById(modalId).classList.add('show');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('show');
+}
+</script>
+{% endblock %}

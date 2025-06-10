@@ -1,0 +1,398 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ candidature.nom }} {{ candidature.prenom }} - Candidatures - {{ super() }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Accueil</a></li>
+<li class="breadcrumb-item"><a href="{{ url_for('admin.candidatures') }}">Candidatures</a></li>
+<li class="breadcrumb-item active">{{ candidature.nom }} {{ candidature.prenom }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h1 class="page-title">{{ candidature.prenom }} {{ candidature.nom|upper }}</h1>
+        <p class="page-subtitle">
+            Dossier n° <span class="badge bg-primary">{{ candidature.numero_dossier }}</span>
+            - Soumis le {{ candidature.date_soumission.strftime('%d %B %Y à %H:%M') if candidature.date_soumission else 'Date inconnue' }}
+        </p>
+    </div>
+    <div>
+        <a href="{{ url_for('admin.candidatures') }}" class="btn-admin btn-admin-outline">
+            <i class="fas fa-arrow-left me-1"></i>Retour à la liste
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Informations principales -->
+    <div class="col-lg-8">
+        <!-- Statut et actions -->
+        <div class="admin-form-container mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="text-primary mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Statut de la candidature
+                </h4>
+                <div>
+                    {% if candidature.statut == 'En attente' %}
+                        <span class="status-badge status-pending fs-6">{{ candidature.statut }}</span>
+                    {% elif candidature.statut == 'Accepté' %}
+                        <span class="status-badge status-accepted fs-6">{{ candidature.statut }}</span>
+                    {% elif candidature.statut == 'Rejeté' %}
+                        <span class="status-badge status-rejected fs-6">{{ candidature.statut }}</span>
+                    {% else %}
+                        <span class="status-badge status-active fs-6">{{ candidature.statut }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if candidature.date_traitement %}
+            <p class="text-muted mb-3">
+                <i class="fas fa-clock me-2"></i>
+                Traité le {{ candidature.date_traitement.strftime('%d %B %Y à %H:%M') }}
+            </p>
+            {% endif %}
+            
+            {% if candidature.commentaires_admin %}
+            <div class="alert alert-info">
+                <h6 class="alert-heading">Commentaires administratifs :</h6>
+                <p class="mb-0">{{ candidature.commentaires_admin }}</p>
+            </div>
+            {% endif %}
+            
+            {% if candidature.statut == 'En attente' %}
+            <form method="POST" action="{{ url_for('admin.traiter_candidature', candidature_id=candidature.id) }}" class="d-inline">
+                <div class="form-group-admin mb-3">
+                    <label class="form-label-admin">Commentaires sur la décision</label>
+                    <textarea name="commentaires" class="form-control-admin" rows="3" 
+                              placeholder="Ajoutez des commentaires sur votre décision..."></textarea>
+                </div>
+                <div class="btn-group">
+                    <button type="submit" name="action" value="accepter" class="btn-admin btn-admin-success">
+                        <i class="fas fa-check me-2"></i>Accepter cette candidature
+                    </button>
+                    <button type="submit" name="action" value="rejeter" class="btn-admin btn-admin-danger">
+                        <i class="fas fa-times me-2"></i>Rejeter cette candidature
+                    </button>
+                </div>
+            </form>
+            {% endif %}
+        </div>
+
+        <!-- Informations personnelles -->
+        <div class="admin-form-container mb-4">
+            <h4 class="text-primary mb-3">
+                <i class="fas fa-user me-2"></i>Informations personnelles
+            </h4>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <strong>Nom :</strong><br>
+                    {{ candidature.nom|upper }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Prénom :</strong><br>
+                    {{ candidature.prenom|title }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Date de naissance :</strong><br>
+                    {{ candidature.date_naissance.strftime('%d %B %Y') if candidature.date_naissance else 'Non renseignée' }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Lieu de naissance :</strong><br>
+                    {{ candidature.lieu_naissance }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Sexe :</strong><br>
+                    {{ 'Masculin' if candidature.sexe == 'M' else 'Féminin' }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Nationalité :</strong><br>
+                    {{ candidature.nationalite }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Coordonnées -->
+        <div class="admin-form-container mb-4">
+            <h4 class="text-primary mb-3">
+                <i class="fas fa-address-book me-2"></i>Coordonnées
+            </h4>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <strong>Téléphone :</strong><br>
+                    <a href="tel:{{ candidature.telephone }}">{{ candidature.telephone }}</a>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Email :</strong><br>
+                    <a href="mailto:{{ candidature.email }}">{{ candidature.email }}</a>
+                </div>
+                <div class="col-12 mb-3">
+                    <strong>Adresse :</strong><br>
+                    {{ candidature.adresse }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Formation et études -->
+        <div class="admin-form-container mb-4">
+            <h4 class="text-primary mb-3">
+                <i class="fas fa-graduation-cap me-2"></i>Formation et études
+            </h4>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <strong>Formation souhaitée :</strong><br>
+                    <span class="badge bg-primary fs-6">{{ candidature.formation.nom if candidature.formation else 'Non spécifiée' }}</span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Niveau d'études :</strong><br>
+                    {{ candidature.niveau_etude }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <strong>Établissement d'origine :</strong><br>
+                    {{ candidature.etablissement_origine or 'Non renseigné' }}
+                </div>
+                {% if candidature.session_concours %}
+                <div class="col-md-6 mb-3">
+                    <strong>Session de concours :</strong><br>
+                    {{ candidature.session_concours }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Documents -->
+        <div class="admin-form-container">
+            <h4 class="text-primary mb-3">
+                <i class="fas fa-file-alt me-2"></i>Documents joints
+            </h4>
+            <div class="row">
+                {% if candidature.cv_filename %}
+                <div class="col-md-4 mb-3">
+                    <div class="document-card">
+                        <i class="fas fa-file-pdf fa-2x text-danger mb-2"></i>
+                        <h6>CV</h6>
+                        <a href="{{ url_for('static', filename='uploads/' + candidature.cv_filename) }}" 
+                           target="_blank" class="btn-admin btn-admin-sm btn-admin-outline">
+                            <i class="fas fa-download me-1"></i>Télécharger
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if candidature.diplome_filename %}
+                <div class="col-md-4 mb-3">
+                    <div class="document-card">
+                        <i class="fas fa-file-pdf fa-2x text-danger mb-2"></i>
+                        <h6>Diplôme</h6>
+                        <a href="{{ url_for('static', filename='uploads/' + candidature.diplome_filename) }}" 
+                           target="_blank" class="btn-admin btn-admin-sm btn-admin-outline">
+                            <i class="fas fa-download me-1"></i>Télécharger
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if candidature.photo_filename %}
+                <div class="col-md-4 mb-3">
+                    <div class="document-card">
+                        <i class="fas fa-image fa-2x text-primary mb-2"></i>
+                        <h6>Photo d'identité</h6>
+                        <a href="{{ url_for('static', filename='uploads/' + candidature.photo_filename) }}" 
+                           target="_blank" class="btn-admin btn-admin-sm btn-admin-outline">
+                            <i class="fas fa-eye me-1"></i>Voir
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if not candidature.cv_filename and not candidature.diplome_filename and not candidature.photo_filename %}
+                <div class="col-12">
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-file-times fa-3x mb-3"></i>
+                        <p>Aucun document joint à cette candidature</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Résumé -->
+        <div class="admin-form-container mb-4">
+            <h5 class="text-primary mb-3">
+                <i class="fas fa-chart-line me-2"></i>Résumé
+            </h5>
+            <div class="stat-item mb-3">
+                <div class="d-flex justify-content-between">
+                    <span>Statut :</span>
+                    <strong>{{ candidature.statut }}</strong>
+                </div>
+            </div>
+            <div class="stat-item mb-3">
+                <div class="d-flex justify-content-between">
+                    <span>Formation :</span>
+                    <strong>{{ candidature.formation.nom[:20] + '...' if candidature.formation and candidature.formation.nom|length > 20 else candidature.formation.nom if candidature.formation else 'N/A' }}</strong>
+                </div>
+            </div>
+            <div class="stat-item mb-3">
+                <div class="d-flex justify-content-between">
+                    <span>Âge :</span>
+                    <strong>
+                        {% if candidature.date_naissance %}
+                            {{ (moment().year - candidature.date_naissance.year) if moment else 'N/A' }} ans
+                        {% else %}
+                            Non renseigné
+                        {% endif %}
+                    </strong>
+                </div>
+            </div>
+            <div class="stat-item mb-3">
+                <div class="d-flex justify-content-between">
+                    <span>Documents :</span>
+                    <strong>
+                        {{ (1 if candidature.cv_filename else 0) + (1 if candidature.diplome_filename else 0) + (1 if candidature.photo_filename else 0) }}/3
+                    </strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions rapides -->
+        <div class="admin-form-container mb-4">
+            <h5 class="text-primary mb-3">
+                <i class="fas fa-tools me-2"></i>Actions rapides
+            </h5>
+            <div class="d-grid gap-2">
+                <a href="mailto:{{ candidature.email }}" class="btn-admin btn-admin-primary">
+                    <i class="fas fa-envelope me-2"></i>Envoyer un email
+                </a>
+                <a href="tel:{{ candidature.telephone }}" class="btn-admin btn-admin-outline">
+                    <i class="fas fa-phone me-2"></i>Appeler
+                </a>
+                <button class="btn-admin btn-admin-outline" onclick="window.print()">
+                    <i class="fas fa-print me-2"></i>Imprimer le dossier
+                </button>
+            </div>
+        </div>
+
+        <!-- Historique -->
+        <div class="admin-form-container">
+            <h5 class="text-primary mb-3">
+                <i class="fas fa-history me-2"></i>Historique
+            </h5>
+            <div class="timeline-simple">
+                <div class="timeline-item">
+                    <div class="timeline-marker bg-primary"></div>
+                    <div class="timeline-content">
+                        <strong>Candidature soumise</strong><br>
+                        <small class="text-muted">
+                            {{ candidature.date_soumission.strftime('%d %B %Y à %H:%M') if candidature.date_soumission else 'Date inconnue' }}
+                        </small>
+                    </div>
+                </div>
+                
+                {% if candidature.date_traitement %}
+                <div class="timeline-item">
+                    <div class="timeline-marker bg-{{ 'success' if candidature.statut == 'Accepté' else 'danger' if candidature.statut == 'Rejeté' else 'warning' }}"></div>
+                    <div class="timeline-content">
+                        <strong>Candidature {{ candidature.statut.lower() }}e</strong><br>
+                        <small class="text-muted">
+                            {{ candidature.date_traitement.strftime('%d %B %Y à %H:%M') }}
+                        </small>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.document-card {
+    border: 2px dashed #dee2e6;
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.document-card:hover {
+    border-color: var(--admin-primary);
+    background-color: rgba(45, 90, 39, 0.05);
+}
+
+.timeline-simple {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline-simple::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -2rem;
+    top: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.timeline-content {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+@media print {
+    .btn-admin, .admin-sidebar, .admin-header, .sidebar {
+        display: none !important;
+    }
+    
+    .admin-main {
+        margin-left: 0 !important;
+    }
+    
+    .admin-content {
+        padding: 0 !important;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des éléments
+    const cards = document.querySelectorAll('.admin-form-container');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'all 0.6s ease';
+        
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 150);
+    });
+});
+</script>
+{% endblock %}

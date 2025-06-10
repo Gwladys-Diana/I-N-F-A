@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Formations - {{ super() }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="section bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 mb-3">Nos formations</h1>
+                <p class="lead">Découvrez notre catalogue de formations agricoles adaptées aux besoins du marché togolais et africain</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Formations -->
+<section class="section">
+    <div class="container">
+        {% if formations %}
+            <div class="row">
+                {% for formation in formations %}
+                <div class="col-lg-6 col-xl-4 mb-4">
+                    <div class="card formation-card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">{{ formation.nom }}</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if formation.duree %}
+                            <div class="formation-badge mb-3">{{ formation.duree }}</div>
+                            {% endif %}
+                            
+                            {% if formation.description %}
+                            <p class="card-text">{{ formation.description|truncate(150) }}</p>
+                            {% endif %}
+                            
+                            <div class="formation-details mb-3">
+                                {% if formation.niveau_requis %}
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-graduation-cap text-primary me-2"></i>
+                                    <small class="text-muted">Niveau requis: {{ formation.niveau_requis }}</small>
+                                </div>
+                                {% endif %}
+                                
+                                {% if formation.places_disponibles %}
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-users text-primary me-2"></i>
+                                    <small class="text-muted">Places: {{ formation.places_disponibles }}</small>
+                                </div>
+                                {% endif %}
+                                
+                                {% if formation.prix and formation.prix > 0 %}
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-tag text-primary me-2"></i>
+                                    <small class="text-muted">{{ formation.prix|int }} FCFA</small>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            {% if formation.debouches %}
+                            <div class="mb-3">
+                                <h6 class="text-primary">Débouchés:</h6>
+                                <p class="small text-muted">{{ formation.debouches|truncate(100) }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('formation_detail', formation_id=formation.id) }}" 
+                                   class="btn btn-outline-primary flex-fill">
+                                    <i class="fas fa-info-circle me-1"></i>Détails
+                                </a>
+                                <a href="{{ url_for('candidature') }}?formation={{ formation.id }}" 
+                                   class="btn btn-primary flex-fill">
+                                    <i class="fas fa-file-alt me-1"></i>Candidater
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body text-center py-5">
+                            <i class="fas fa-graduation-cap fa-4x text-muted mb-4"></i>
+                            <h4 class="text-muted">Aucune formation disponible</h4>
+                            <p class="text-muted">Les formations seront bientôt disponibles. Revenez plus tard.</p>
+                            <a href="{{ url_for('contact') }}" class="btn btn-primary">
+                                <i class="fas fa-envelope me-2"></i>Nous contacter
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="section bg-light-green">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h3>Prêt à commencer votre formation ?</h3>
+                <p class="lead mb-4">Rejoignez des centaines d'étudiants qui ont choisi l'INFA pour leur formation agricole</p>
+                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                    <a href="{{ url_for('candidature') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-file-alt me-2"></i>Candidater maintenant
+                    </a>
+                    <a href="{{ url_for('contact') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-question-circle me-2"></i>Poser une question
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Informations supplémentaires -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-certificate fa-3x text-primary mb-3"></i>
+                        <h5>Diplômes reconnus</h5>
+                        <p class="card-text">Nos formations sont reconnues par l'État togolais et valorisées sur le marché de l'emploi.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-hands-helping fa-3x text-primary mb-3"></i>
+                        <h5>Accompagnement</h5>
+                        <p class="card-text">Bénéficiez d'un accompagnement personnalisé tout au long de votre formation.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-briefcase fa-3x text-primary mb-3"></i>
+                        <h5>Insertion professionnelle</h5>
+                        <p class="card-text">Un service d'aide à l'insertion professionnelle pour faciliter votre entrée dans la vie active.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,359 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Actualités - {{ super() }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Accueil</a></li>
+<li class="breadcrumb-item active">Actualités</li>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">Gestion des actualités</h1>
+        <p class="page-subtitle">{{ actualites|length }} actualité{{ 's' if actualites|length > 1 else '' }} au total</p>
+    </div>
+    <div>
+        <a href="{{ url_for('admin.nouvelle_actualite') }}" class="btn-admin btn-admin-primary">
+            <i class="fas fa-plus me-1"></i>Nouvelle actualité
+        </a>
+    </div>
+</div>
+
+<!-- Statistiques rapides -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card success">
+            <div class="stat-header">
+                <span class="stat-title">Publiées</span>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ actualites|selectattr('is_published')|list|length }}</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card warning">
+            <div class="stat-header">
+                <span class="stat-title">Brouillons</span>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);">
+                    <i class="fas fa-edit"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ actualites|rejectattr('is_published')|list|length }}</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card info">
+            <div class="stat-header">
+                <span class="stat-title">Ce mois</span>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #17a2b8 0%, #007bff 100%);">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ actualites|selectattr('date_publication')|list|length }}</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">Total</span>
+                <div class="stat-icon">
+                    <i class="fas fa-newspaper"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ actualites|length }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Liste des actualités -->
+<div class="admin-table-container">
+    <div class="table-header">
+        <h3 class="table-title">Liste des actualités</h3>
+        <div class="table-actions">
+            <div class="btn-group">
+                <button class="btn-admin btn-admin-outline btn-admin-sm dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fas fa-filter me-1"></i>Filtrer
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="?filter=published">Publiées seulement</a></li>
+                    <li><a class="dropdown-item" href="?filter=draft">Brouillons seulement</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('admin.actualites') }}">Toutes</a></li>
+                </ul>
+            </div>
+            <button class="btn-admin btn-admin-outline btn-admin-sm" onclick="exportTableData('actualitesTable', 'actualites_infa')">
+                <i class="fas fa-download me-1"></i>Exporter
+            </button>
+        </div>
+    </div>
+    
+    {% if actualites %}
+    <div class="table-responsive">
+        <table class="admin-table data-table" id="actualitesTable">
+            <thead>
+                <tr>
+                    <th>Titre</th>
+                    <th>Auteur</th>
+                    <th>Date de publication</th>
+                    <th>Statut</th>
+                    <th class="no-sort">Aperçu</th>
+                    <th class="no-sort">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for actualite in actualites %}
+                <tr>
+                    <td>
+                        <div>
+                            <strong class="text-primary">{{ actualite.titre }}</strong>
+                            {% if actualite.resume %}
+                            <br><small class="text-muted">{{ actualite.resume|truncate(60) }}</small>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        {% if actualite.auteur %}
+                            <div>
+                                <strong>{{ actualite.auteur.prenom }} {{ actualite.auteur.nom }}</strong>
+                                <br><small class="text-muted">{{ actualite.auteur.email }}</small>
+                            </div>
+                        {% else %}
+                            <span class="text-muted">Auteur non défini</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if actualite.date_publication %}
+                            {{ actualite.date_publication.strftime('%d/%m/%Y %H:%M') }}
+                        {% else %}
+                            <span class="text-muted">Non planifiée</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if actualite.is_published %}
+                            <span class="status-badge status-active">Publiée</span>
+                        {% else %}
+                            <span class="status-badge status-pending">Brouillon</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if actualite.is_published %}
+                            <a href="{{ url_for('actualite_detail', actualite_id=actualite.id) }}" 
+                               target="_blank" 
+                               class="btn-admin btn-admin-sm btn-admin-outline">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="{{ url_for('admin.modifier_actualite', actualite_id=actualite.id) }}" 
+                               class="btn-admin btn-admin-sm btn-admin-primary" 
+                               data-tooltip="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            
+                            {% if not actualite.is_published %}
+                            <button class="btn-admin btn-admin-sm btn-admin-success" 
+                                    onclick="publierActualite({{ actualite.id }})"
+                                    data-tooltip="Publier">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                            {% else %}
+                            <button class="btn-admin btn-admin-sm btn-admin-warning" 
+                                    onclick="depublierActualite({{ actualite.id }})"
+                                    data-tooltip="Dépublier">
+                                <i class="fas fa-eye-slash"></i>
+                            </button>
+                            {% endif %}
+                            
+                            <button class="btn-admin btn-admin-sm btn-admin-danger" 
+                                    onclick="confirmerSuppression('{{ actualite.titre }}', '{{ url_for('admin.actualites') }}?delete={{ actualite.id }}')"
+                                    data-tooltip="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-newspaper fa-4x text-muted mb-3"></i>
+        <h4 class="text-muted">Aucune actualité</h4>
+        <p class="text-muted">Commencez par créer votre première actualité.</p>
+        <a href="{{ url_for('admin.nouvelle_actualite') }}" class="btn-admin btn-admin-primary">
+            <i class="fas fa-plus me-2"></i>Créer la première actualité
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Aperçu rapide -->
+<div class="row mt-4">
+    <div class="col-lg-8">
+        <div class="admin-form-container">
+            <h4 class="text-primary mb-3">
+                <i class="fas fa-chart-line me-2"></i>Performances des actualités
+            </h4>
+            <div class="row">
+                <div class="col-md-4 text-center mb-3">
+                    <h3 class="text-primary">{{ actualites|selectattr('is_published')|list|length }}</h3>
+                    <p class="text-muted">Actualités publiées</p>
+                </div>
+                <div class="col-md-4 text-center mb-3">
+                    <h3 class="text-warning">{{ actualites|rejectattr('is_published')|list|length }}</h3>
+                    <p class="text-muted">Brouillons en attente</p>
+                </div>
+                <div class="col-md-4 text-center mb-3">
+                    <h3 class="text-info">{{ moment().month if moment else 'N/A' }}</h3>
+                    <p class="text-muted">Publications ce mois</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="admin-form-container">
+            <h5 class="text-primary mb-3">
+                <i class="fas fa-lightbulb me-2"></i>Conseils
+            </h5>
+            <ul class="list-unstyled">
+                <li class="mb-2">
+                    <i class="fas fa-check text-success me-2"></i>
+                    Publiez régulièrement pour maintenir l'engagement
+                </li>
+                <li class="mb-2">
+                    <i class="fas fa-check text-success me-2"></i>
+                    Utilisez des images attractives
+                </li>
+                <li class="mb-2">
+                    <i class="fas fa-check text-success me-2"></i>
+                    Rédigez des résumés accrocheurs
+                </li>
+                <li class="mb-0">
+                    <i class="fas fa-check text-success me-2"></i>
+                    Planifiez vos publications
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal-admin" id="suppressionModal">
+    <div class="modal-content-admin">
+        <div class="modal-header-admin">
+            <h4 class="modal-title-admin">Confirmer la suppression</h4>
+            <button class="modal-close" onclick="closeModal('suppressionModal')">&times;</button>
+        </div>
+        <div class="modal-body-admin">
+            <div class="text-center">
+                <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                <p>Êtes-vous sûr de vouloir supprimer l'actualité :</p>
+                <h5 id="actualiteTitre" class="text-primary"></h5>
+                <p class="text-muted">Cette action est irréversible.</p>
+            </div>
+        </div>
+        <div class="modal-footer-admin">
+            <button type="button" class="btn-admin btn-admin-outline" onclick="closeModal('suppressionModal')">
+                Annuler
+            </button>
+            <a id="suppressionLink" href="#" class="btn-admin btn-admin-danger">
+                <i class="fas fa-trash me-1"></i>Supprimer définitivement
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function publierActualite(actualiteId) {
+    if (confirm('Êtes-vous sûr de vouloir publier cette actualité ?')) {
+        // Ici, vous pourriez implémenter la logique de publication
+        fetch(`/admin/actualite/${actualiteId}/publier`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name=csrf-token]')?.getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Erreur lors de la publication');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la publication');
+        });
+    }
+}
+
+function depublierActualite(actualiteId) {
+    if (confirm('Êtes-vous sûr de vouloir dépublier cette actualité ?')) {
+        // Ici, vous pourriez implémenter la logique de dépublication
+        fetch(`/admin/actualite/${actualiteId}/depublier`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name=csrf-token]')?.getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Erreur lors de la dépublication');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la dépublication');
+        });
+    }
+}
+
+function confirmerSuppression(titreActualite, urlSuppression) {
+    document.getElementById('actualiteTitre').textContent = titreActualite;
+    document.getElementById('suppressionLink').href = urlSuppression;
+    openModal('suppressionModal');
+}
+
+function openModal(modalId) {
+    document.getElementById(modalId).classList.add('show');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('show');
+}
+
+// Animation des cartes de statistiques
+document.addEventListener('DOMContentLoaded', function() {
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'all 0.6s ease';
+        
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}
