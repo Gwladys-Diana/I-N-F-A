@@ -16,11 +16,12 @@ def save_uploaded_file(file, folder, prefix=""):
     """Sauvegarde un fichier uploadé avec un nom unique"""
     if file and file.filename:
         filename = generate_filename(file.filename, prefix)
-        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], folder, filename)
         
-        # Créer le dossier s'il n'existe pas
-        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        # Pour les uploads dans static/uploads/
+        upload_dir = os.path.join(current_app.root_path, 'static', folder)
+        os.makedirs(upload_dir, exist_ok=True)
         
+        filepath = os.path.join(upload_dir, filename)
         file.save(filepath)
         return filename
     return None

@@ -3,6 +3,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from app import app, db
 from models import Admin, Formation, Candidature, Actualite, MembreEquipe, Configuration, Contact
 from forms import AdminLoginForm, FormationForm, ActualiteForm, MembreEquipeForm, ConfigurationForm
+from utils import save_uploaded_file, resize_image
 from werkzeug.security import generate_password_hash
 import os
 from datetime import datetime, timedelta
@@ -260,8 +261,17 @@ def nouvelle_actualite():
         
         # Traitement de l'image si présente
         if form.image.data:
-            # Ici vous pourriez ajouter la logique de traitement d'image
-            pass
+            try:
+                filename = save_uploaded_file(form.image.data, 'uploads', 'actualite_')
+                actualite.image_filename = filename
+                
+                # Redimensionner l'image pour optimiser l'espace
+                image_path = os.path.join(current_app.root_path, 'static', 'uploads', filename)
+                resize_image(image_path)
+                
+            except Exception as e:
+                flash(f'Erreur lors du téléchargement de l\'image: {str(e)}', 'error')
+                return render_template('admin/actualite_form.html', form=form, title="Nouvelle actualité")
         
         db.session.add(actualite)
         db.session.commit()
@@ -279,8 +289,35 @@ def modifier_actualite(actualite_id):
     form = ActualiteForm(obj=actualite)
     
     if form.validate_on_submit():
+        # Sauvegarder l'ancien nom de fichier au cas où
+        old_image_filename = actualite.image_filename
+        
         form.populate_obj(actualite)
         actualite.date_modification = datetime.utcnow()
+        
+        # Traitement de la nouvelle image si présente
+        if form.image.data:
+            try:
+                # Supprimer l'ancienne image si elle existe
+                if old_image_filename:
+                    old_image_path = os.path.join(current_app.root_path, 'static', 'uploads', old_image_filename)
+                    if os.path.exists(old_image_path):
+                        os.remove(old_image_path)
+                
+                # Sauvegarder la nouvelle image
+                filename = save_uploaded_file(form.image.data, 'uploads', 'actualite_')
+                actualite.image_filename = filename
+                
+                # Redimensionner l'image pour optimiser l'espace
+                image_path = os.path.join(current_app.root_path, 'static', 'uploads', filename)
+                resize_image(image_path)
+                
+            except Exception as e:
+                flash(f'Erreur lors du téléchargement de l\'image: {str(e)}', 'error')
+                return render_template('admin/actualite_form.html', 
+                                     form=form,
+                                     actualite=actualite,
+                                     title="Modifier actualité")
         
         db.session.commit()
         
