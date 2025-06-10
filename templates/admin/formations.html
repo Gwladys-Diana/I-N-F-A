@@ -11,7 +11,8 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h1 class="page-title">Gestion des formations</h1>
-        <p class="page-subtitle">{{ formations|length }} formation{{ 's' if formations|length > 1 else '' }} au catalogue</p>
+        <p class="page-subtitle">{{ formations|length }} formation{{ 's' if formations|length > 1 else '' }} au
+            catalogue</p>
     </div>
     <div>
         <a href="{{ url_for('admin.nouvelle_formation') }}" class="btn-admin btn-admin-primary">
@@ -33,7 +34,7 @@
             <div class="stat-value">{{ formations|selectattr('is_active')|list|length }}</div>
         </div>
     </div>
-    
+
     <div class="col-lg-3 col-md-6 mb-3">
         <div class="stat-card warning">
             <div class="stat-header">
@@ -45,7 +46,7 @@
             <div class="stat-value">{{ formations|rejectattr('is_active')|list|length }}</div>
         </div>
     </div>
-    
+
     <div class="col-lg-3 col-md-6 mb-3">
         <div class="stat-card info">
             <div class="stat-header">
@@ -57,7 +58,7 @@
             <div class="stat-value">{{ formations|sum(attribute='places_disponibles') or 0 }}</div>
         </div>
     </div>
-    
+
     <div class="col-lg-3 col-md-6 mb-3">
         <div class="stat-card">
             <div class="stat-header">
@@ -66,7 +67,9 @@
                     <i class="fas fa-file-alt"></i>
                 </div>
             </div>
-            <div class="stat-value">{{ formations|sum(attribute='candidatures')|length if formations else 0 }}</div>
+            <div class="stat-value">
+                {{ formations | map(attribute='candidatures') | map('length') | sum if formations else 0 }}
+            </div>
         </div>
     </div>
 </div>
@@ -76,12 +79,13 @@
     <div class="table-header">
         <h3 class="table-title">Catalogue des formations</h3>
         <div class="table-actions">
-            <button class="btn-admin btn-admin-outline btn-admin-sm" onclick="exportTableData('formationsTable', 'formations_infa')">
+            <button class="btn-admin btn-admin-outline btn-admin-sm"
+                onclick="exportTableData('formationsTable', 'formations_infa')">
                 <i class="fas fa-download me-1"></i>Exporter
             </button>
         </div>
     </div>
-    
+
     {% if formations %}
     <div class="table-responsive">
         <table class="admin-table data-table" id="formationsTable">
@@ -114,16 +118,16 @@
                     <td>{{ formation.niveau_requis or '-' }}</td>
                     <td>
                         {% if formation.places_disponibles %}
-                            <span class="badge bg-info">{{ formation.places_disponibles }} places</span>
+                        <span class="badge bg-info">{{ formation.places_disponibles }} places</span>
                         {% else %}
-                            <span class="text-muted">Non défini</span>
+                        <span class="text-muted">Non défini</span>
                         {% endif %}
                     </td>
                     <td>
                         {% if formation.prix and formation.prix > 0 %}
-                            {{ "{:,.0f}".format(formation.prix) }} FCFA
+                        {{ "{:,.0f}".format(formation.prix) }} FCFA
                         {% else %}
-                            <span class="text-muted">Gratuit</span>
+                        <span class="text-muted">Gratuit</span>
                         {% endif %}
                     </td>
                     <td>
@@ -131,29 +135,25 @@
                     </td>
                     <td>
                         {% if formation.is_active %}
-                            <span class="status-badge status-active">Active</span>
+                        <span class="status-badge status-active">Active</span>
                         {% else %}
-                            <span class="status-badge status-pending">Inactive</span>
+                        <span class="status-badge status-pending">Inactive</span>
                         {% endif %}
                     </td>
                     <td>
                         <div class="btn-group">
-                            <a href="{{ url_for('formation_detail', formation_id=formation.id) }}" 
-                               target="_blank"
-                               class="btn-admin btn-admin-sm btn-admin-outline" 
-                               data-tooltip="Voir sur le site">
+                            <a href="{{ url_for('formation_detail', formation_id=formation.id) }}" target="_blank"
+                                class="btn-admin btn-admin-sm btn-admin-outline" data-tooltip="Voir sur le site">
                                 <i class="fas fa-external-link-alt"></i>
                             </a>
-                            <a href="{{ url_for('admin.modifier_formation', formation_id=formation.id) }}" 
-                               class="btn-admin btn-admin-sm btn-admin-primary" 
-                               data-tooltip="Modifier">
+                            <a href="{{ url_for('admin.modifier_formation', formation_id=formation.id) }}"
+                                class="btn-admin btn-admin-sm btn-admin-primary" data-tooltip="Modifier">
                                 <i class="fas fa-edit"></i>
                             </a>
                             {% if formation.candidatures|length == 0 %}
-                            <button class="btn-admin btn-admin-sm btn-admin-danger" 
-                                    onclick="confirmerSuppression('{{ formation.nom }}', '{{ url_for('admin.supprimer_formation', formation_id=formation.id) }}')"
-                                    data-tooltip="Supprimer">
-                                <i class="fas fa-trash"></i>
+                            <button class="btn-admin btn-admin-sm btn-admin-danger"
+                                onclick="confirmerSuppression('{{ formation.nom|escapejs }}', '{{ url_for(admin.supprimer_formation,formation_id=formation.id)}}')"
+                                data-tooltip="Supprimer" <i class="fas fa-trash"></i>
                             </button>
                             {% endif %}
                         </div>
@@ -206,48 +206,42 @@
 
 {% block extra_js %}
 <script>
-function confirmerSuppression(nomFormation, urlSuppression) {
-    document.getElementById('formationNom').textContent = nomFormation;
-    document.getElementById('suppressionForm').action = urlSuppression;
-    openModal('suppressionModal');
-}
-
-function openModal(modalId) {
-    document.getElementById(modalId).classList.add('show');
-}
-
-function closeModal(modalId) {
-    document.getElementById(modalId).classList.remove('show');
-}
-
-// Animation des cartes de statistiques
-document.addEventListener('DOMContentLoaded', function() {
-    const statCards = document.querySelectorAll('.stat-card');
-    statCards.forEach((card, index) => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        card.style.transition = 'all 0.6s ease';
-        
-        setTimeout(() => {
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        }, index * 100);
-    });
-    
-    // Animation du tableau
-    const table = document.querySelector('.admin-table-container');
-    if (table) {
-        setTimeout(() => {
-            table.style.opacity = '0';
-            table.style.transform = 'translateY(30px)';
-            table.style.transition = 'all 0.6s ease';
-            
-            setTimeout(() => {
-                table.style.opacity = '1';
-                table.style.transform = 'translateY(0)';
-            }, 50);
-        }, 400);
+    function confirmerSuppression(nomFormation, urlSuppression) {
+        document.getElementById('formationNom').textContent = nomFormation;
+        document.getElementById('suppressionForm').action = urlSuppression;
+        openModal('suppressionModal');
     }
-});
+
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = 'block';
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    // Export table en CSV
+    function exportTableData(tableID, filename = '') {
+        let csv = [];
+        const rows = document.querySelectorAll(`#${tableID} tr`);
+        for (let i = 0; i < rows.length; i++) {
+            const row = [], cols = rows[i].querySelectorAll('td, th');
+            for (let j = 0; j < cols.length; j++) {
+                let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, '').replace(/(\s\s)/gm, ' ').trim();
+                data = data.replace(/"/g, '""');  // double quotes escape
+                row.push(`"${data}"`);
+            }
+            csv.push(row.join(','));
+        }
+        // Download CSV
+        const csvFile = new Blob([csv.join('\n')], { type: 'text/csv' });
+        const downloadLink = document.createElement('a');
+        downloadLink.download = filename ? filename + '.csv' : 'export.csv';
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        downloadLink.style.display = 'none';
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }
 </script>
 {% endblock %}

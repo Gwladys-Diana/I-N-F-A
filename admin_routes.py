@@ -408,6 +408,138 @@ def profil():
     
     return render_template('admin/profil.html')
 
+@admin.route('/export-pdf')
+@login_required
+def export_pdf():
+    """Exporter les statistiques en PDF"""
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib import colors
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
+    from reportlab.lib.units import inch
+    from io import BytesIO
+    import matplotlib.pyplot as plt
+    import matplotlib
+    matplotlib.use('Agg')
+    
+    # Calculer les statistiques
+    stats = calculate_statistics()
+    
+    # Créer le PDF en mémoire
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, 
+                          rightMargin=72, leftMargin=72,
+                          topMargin=72, bottomMargin=18)
+    
+    # Styles
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=24,
+        spaceAfter=30,
+        textColor=colors.Color(0.18, 0.49, 0.19),  # Vert INFA
+        alignment=1  # Center
+    )
+    
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=16,
+        spaceAfter=12,
+        textColor=colors.Color(0.18, 0.49, 0.19)
+    )
+    
+    # Contenu du PDF
+    story = []
+    
+    # Logo et titre
+    try:
+        logo_path = os.path.join(current_app.root_path, 'static', 'images', 'logo-infa.jpg')
+        if os.path.exists(logo_path):
+            logo = Image(logo_path, width=1*inch, height=1*inch)
+            story.append(logo)
+            story.append(Spacer(1, 12))
+    except:
+        pass
+    
+    story.append(Paragraph("INSTITUT NATIONAL DE FORMATION AGRICOLE", title_style))
+    story.append(Paragraph("Rapport Statistique", styles['Heading2']))
+    story.append(Paragraph(f"Généré le {datetime.now().strftime('%d/%m/%Y à %H:%M')}", styles['Normal']))
+    story.append(Spacer(1, 30))
+    
+    # Statistiques générales
+    story.append(Paragraph("Vue d'ensemble", heading_style))
+    
+    data = [
+        ['Indicateur', 'Valeur'],
+        ['Total candidatures', str(stats['total_candidatures'])],
+        ['Candidatures en attente', str(stats['candidatures_en_attente'])],
+        ['Candidatures acceptées', str(stats['candidatures_acceptees'])],
+        ['Candidatures rejetées', str(stats['candidatures_rejetees'])],
+        ['Total formations', str(stats['total_formations'])],
+        ['Formations actives', str(stats['formations_actives'])],
+        ['Total actualités', str(stats['total_actualites'])],
+        ['Messages non lus', str(stats['messages_non_lus'])],
+    ]
+    
+    table = Table(data, colWidths=[3*inch, 2*inch])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.Color(0.18, 0.49, 0.19)),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 14),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+    
+    story.append(table)
+    story.append(Spacer(1, 30))
+    
+    # Graphique des candidatures
+    if stats['total_candidatures'] > 0:
+        # Créer un graphique en secteurs
+        plt.figure(figsize=(8, 6))
+        labels = ['En attente', 'Acceptées', 'Rejetées']
+        sizes = [stats['candidatures_en_attente'], stats['candidatures_acceptees'], stats['candidatures_rejetees']]
+        colors_chart = ['#FFC107', '#66BB6A', '#F44336']
+        
+        plt.pie(sizes, labels=labels, colors=colors_chart, autopct='%1.1f%%', startangle=90)
+        plt.title('Répartition des candidatures', fontsize=16, color='#2E7D32')
+        plt.axis('equal')
+        
+        # Sauvegarder le graphique
+        chart_buffer = BytesIO()
+        plt.savefig(chart_buffer, format='png', dpi=300, bbox_inches='tight')
+        chart_buffer.seek(0)
+        plt.close()
+        
+        # Ajouter le graphique au PDF
+        story.append(Paragraph("Répartition des candidatures", heading_style))
+        chart_img = Image(chart_buffer, width=5*inch, height=3.75*inch)
+        story.append(chart_img)
+        story.append(Spacer(1, 20))
+    
+    # Footer
+    story.append(Spacer(1, 50))
+    story.append(Paragraph("___________", styles['Normal']))
+    story.append(Paragraph("Institut National de Formation Agricole de Tové", styles['Normal']))
+    story.append(Paragraph("Rapport généré automatiquement par le système d'administration", styles['Normal']))
+    
+    # Construire le PDF
+    doc.build(story)
+    
+    # Retourner le PDF
+    buffer.seek(0)
+    from flask import make_response
+    response = make_response(buffer.getvalue())
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename=rapport_infa_{datetime.now().strftime("%Y%m%d_%H%M")}.pdf'
+    
+    return response
+
 @admin.route('/membre/nouveau', methods=['GET', 'POST'])
 @login_required
 def nouveau_membre():

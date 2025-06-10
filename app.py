@@ -1,10 +1,18 @@
 import os
 import logging
+import pymysql
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement depuis un fichier .env
+load_dotenv()
+
+# Utiliser pymysql comme moteur MySQL
+pymysql.install_as_MySQLdb()
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -14,28 +22,28 @@ class Base(DeclarativeBase):
 
 db = SQLAlchemy(model_class=Base)
 
-# Create the app
+# Créer l'application Flask
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET")
+app.secret_key = os.environ.get("SESSION_SECRET", "secret_key_default")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-# Configure the database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+# Configuration MySQL (via .env ou directement ici)
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "mysql+pymysql://root@localhost/infa_base_deploye")
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
 }
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# File upload configuration
+# Configuration de l’upload de fichiers
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'uploads')
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
 ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'}
 
-# Initialize the app with the extension
+# Initialiser SQLAlchemy avec l'app
 db.init_app(app)
 
-# Initialize Flask-Login
+# Configurer Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'admin.login'
@@ -51,18 +59,17 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# Create upload directory if it doesn't exist
+# Créer le dossier d’upload si nécessaire
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 with app.app_context():
-    # Import models to create tables
     import models
     db.create_all()
-    
-    # Create default admin user if none exists
+
+    # Créer un compte admin si aucun n’existe
     from models import Admin
     from werkzeug.security import generate_password_hash
-    
+
     if not Admin.query.first():
         admin = Admin(
             username='admin',
@@ -73,4 +80,4 @@ with app.app_context():
         )
         db.session.add(admin)
         db.session.commit()
-        logging.info("Default admin user created: admin/admin123")
+        logging.info("✅ Utilisateur admin créé : admin/admin123")
