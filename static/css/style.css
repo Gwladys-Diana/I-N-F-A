@@ -75,6 +75,20 @@ a:hover {
     color: var(--white) !important;
 }
 
+.navbar-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.footer-logo {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 10px;
+}
+
 .navbar-nav .nav-link {
     color: var(--white) !important;
     font-weight: 500;

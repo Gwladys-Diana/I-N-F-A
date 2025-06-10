@@ -1,0 +1,361 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Configuration - {{ super() }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Accueil</a></li>
+<li class="breadcrumb-item active">Configuration</li>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">Configuration du site</h1>
+        <p class="page-subtitle">Paramètres généraux de l'INFA</p>
+    </div>
+    <div>
+        <a href="{{ url_for('index') }}" target="_blank" class="btn-admin btn-admin-outline">
+            <i class="fas fa-external-link-alt me-1"></i>Voir le site
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="admin-form-container">
+            <form method="POST" class="admin-form">
+                {{ form.hidden_tag() }}
+                
+                <!-- Informations générales -->
+                <div class="section-header mb-4">
+                    <h4 class="text-primary">
+                        <i class="fas fa-info-circle me-2"></i>Informations générales
+                    </h4>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group-admin">
+                            {{ form.nom_institut.label(class="form-label-admin") }}
+                            {{ form.nom_institut(class="form-control-admin" + (" is-invalid" if form.nom_institut.errors else "")) }}
+                            {% if form.nom_institut.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.nom_institut.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group-admin">
+                            {{ form.telephone.label(class="form-label-admin") }}
+                            {{ form.telephone(class="form-control-admin") }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group-admin">
+                            {{ form.email.label(class="form-label-admin") }}
+                            {{ form.email(class="form-control-admin") }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group-admin">
+                    {{ form.adresse.label(class="form-label-admin") }}
+                    {{ form.adresse(class="form-control-admin", rows="3") }}
+                </div>
+                
+                <div class="form-group-admin">
+                    {{ form.site_web.label(class="form-label-admin") }}
+                    {{ form.site_web(class="form-control-admin") }}
+                </div>
+                
+                <!-- Réseaux sociaux -->
+                <div class="section-header mb-4 mt-5">
+                    <h4 class="text-primary">
+                        <i class="fab fa-facebook me-2"></i>Réseaux sociaux
+                    </h4>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group-admin">
+                            {{ form.facebook.label(class="form-label-admin") }}
+                            {{ form.facebook(class="form-control-admin") }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group-admin">
+                            {{ form.twitter.label(class="form-label-admin") }}
+                            {{ form.twitter(class="form-control-admin") }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group-admin">
+                            {{ form.linkedin.label(class="form-label-admin") }}
+                            {{ form.linkedin(class="form-control-admin") }}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- À propos -->
+                <div class="section-header mb-4 mt-5">
+                    <h4 class="text-primary">
+                        <i class="fas fa-book me-2"></i>À propos de l'institut
+                    </h4>
+                </div>
+                
+                <div class="form-group-admin">
+                    {{ form.mission.label(class="form-label-admin") }}
+                    {{ form.mission(class="form-control-admin", rows="4") }}
+                </div>
+                
+                <div class="form-group-admin">
+                    {{ form.vision.label(class="form-label-admin") }}
+                    {{ form.vision(class="form-control-admin", rows="4") }}
+                </div>
+                
+                <div class="form-group-admin">
+                    {{ form.historique.label(class="form-label-admin") }}
+                    {{ form.historique(class="form-control-admin", rows="6") }}
+                </div>
+                
+                <!-- Paramètres de candidature -->
+                <div class="section-header mb-4 mt-5">
+                    <h4 class="text-primary">
+                        <i class="fas fa-user-graduate me-2"></i>Paramètres de candidature
+                    </h4>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group-admin">
+                            {{ form.session_concours_actuelle.label(class="form-label-admin") }}
+                            {{ form.session_concours_actuelle(class="form-control-admin") }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group-admin">
+                            {{ form.date_limite_candidature.label(class="form-label-admin") }}
+                            {{ form.date_limite_candidature(class="form-control-admin", type="date") }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group-admin">
+                    <div class="form-check-admin">
+                        {{ form.candidatures_ouvertes(class="form-check-input-admin") }}
+                        {{ form.candidatures_ouvertes.label(class="form-check-label-admin") }}
+                    </div>
+                    <small class="form-text text-muted">
+                        Si décoché, le formulaire de candidature sera fermé
+                    </small>
+                </div>
+                
+                <!-- Messages personnalisés -->
+                <div class="section-header mb-4 mt-5">
+                    <h4 class="text-primary">
+                        <i class="fas fa-comment me-2"></i>Messages personnalisés
+                    </h4>
+                </div>
+                
+                <div class="form-group-admin">
+                    {{ form.message_accueil.label(class="form-label-admin") }}
+                    {{ form.message_accueil(class="form-control-admin", rows="3") }}
+                    <small class="form-text text-muted">Message affiché sur la page d'accueil</small>
+                </div>
+                
+                <div class="form-group-admin">
+                    {{ form.message_candidature.label(class="form-label-admin") }}
+                    {{ form.message_candidature(class="form-control-admin", rows="3") }}
+                    <small class="form-text text-muted">Message affiché sur la page de candidature</small>
+                </div>
+                
+                <!-- Actions -->
+                <div class="form-actions">
+                    {{ form.submit(class="btn-admin btn-admin-primary") }}
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn-admin btn-admin-outline">
+                        Annuler
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Sidebar d'aide -->
+    <div class="col-lg-4">
+        <div class="admin-form-container">
+            <h5 class="text-primary mb-3">
+                <i class="fas fa-lightbulb me-2"></i>Conseils de configuration
+            </h5>
+            
+            <div class="help-section">
+                <h6><i class="fas fa-globe me-1"></i>Informations générales</h6>
+                <ul class="help-list">
+                    <li>Le nom de l'institut apparaît dans le titre du site</li>
+                    <li>L'adresse est affichée dans le footer</li>
+                    <li>Les contacts sont visibles sur la page contact</li>
+                </ul>
+            </div>
+            
+            <div class="help-section">
+                <h6><i class="fab fa-facebook me-1"></i>Réseaux sociaux</h6>
+                <ul class="help-list">
+                    <li>Liens vers vos pages officielles</li>
+                    <li>Affichés dans le footer du site</li>
+                    <li>Laissez vide si non utilisé</li>
+                </ul>
+            </div>
+            
+            <div class="help-section">
+                <h6><i class="fas fa-user-graduate me-1"></i>Candidatures</h6>
+                <ul class="help-list">
+                    <li>Définissez la session de concours actuelle</li>
+                    <li>Fixez une date limite pour les candidatures</li>
+                    <li>Activez/désactivez les candidatures</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Statut actuel -->
+        {% if config %}
+        <div class="admin-form-container">
+            <h5 class="text-primary mb-3">
+                <i class="fas fa-info-circle me-2"></i>Statut actuel
+            </h5>
+            
+            <div class="info-item">
+                <strong>Candidatures :</strong><br>
+                {% if config.candidatures_ouvertes %}
+                    <span class="status-badge status-active">Ouvertes</span>
+                {% else %}
+                    <span class="status-badge status-inactive">Fermées</span>
+                {% endif %}
+            </div>
+            
+            {% if config.session_concours_actuelle %}
+            <div class="info-item">
+                <strong>Session actuelle :</strong><br>
+                <span class="text-muted">{{ config.session_concours_actuelle }}</span>
+            </div>
+            {% endif %}
+            
+            {% if config.date_limite_candidature %}
+            <div class="info-item">
+                <strong>Date limite :</strong><br>
+                <span class="text-muted">{{ config.date_limite_candidature.strftime('%d/%m/%Y') }}</span>
+            </div>
+            {% endif %}
+            
+            {% if config.date_modification %}
+            <div class="info-item">
+                <strong>Dernière modification :</strong><br>
+                <span class="text-muted">{{ config.date_modification.strftime('%d/%m/%Y à %H:%M') }}</span>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        <!-- Actions rapides -->
+        <div class="admin-form-container">
+            <h5 class="text-primary mb-3">
+                <i class="fas fa-bolt me-2"></i>Actions rapides
+            </h5>
+            
+            <div class="d-grid gap-2">
+                <a href="{{ url_for('admin.dashboard') }}" class="btn-admin btn-admin-outline btn-admin-sm">
+                    <i class="fas fa-tachometer-alt me-1"></i>Tableau de bord
+                </a>
+                <a href="{{ url_for('admin.candidatures') }}" class="btn-admin btn-admin-outline btn-admin-sm">
+                    <i class="fas fa-users me-1"></i>Candidatures
+                </a>
+                <a href="{{ url_for('admin.formations') }}" class="btn-admin btn-admin-outline btn-admin-sm">
+                    <i class="fas fa-graduation-cap me-1"></i>Formations
+                </a>
+                <a href="{{ url_for('index') }}" target="_blank" class="btn-admin btn-admin-primary btn-admin-sm">
+                    <i class="fas fa-external-link-alt me-1"></i>Voir le site
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.section-header {
+    border-bottom: 2px solid var(--admin-light);
+    padding-bottom: 0.5rem;
+}
+
+.section-header h4 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.help-section {
+    margin-bottom: 1.5rem;
+}
+
+.help-section h6 {
+    color: var(--admin-primary);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.help-list {
+    list-style: none;
+    padding: 0;
+}
+
+.help-list li {
+    padding: 0.25rem 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.help-list li:before {
+    content: "•";
+    color: var(--admin-primary);
+    margin-right: 0.5rem;
+}
+
+.info-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-resize textareas
+    const textareas = document.querySelectorAll('textarea');
+    textareas.forEach(textarea => {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    });
+    
+    // Preview social links
+    const socialInputs = document.querySelectorAll('input[name^="facebook"], input[name^="twitter"], input[name^="linkedin"]');
+    socialInputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.value && !this.value.startsWith('http')) {
+                this.value = 'https://' + this.value;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

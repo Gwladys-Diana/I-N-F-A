@@ -1,0 +1,373 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Messages - {{ super() }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Accueil</a></li>
+<li class="breadcrumb-item active">Messages</li>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">Messages de contact</h1>
+        <p class="page-subtitle">{{ contacts|length }} message{{ 's' if contacts|length > 1 else '' }} reçu{{ 's' if contacts|length > 1 else '' }}</p>
+    </div>
+    <div>
+        <button class="btn-admin btn-admin-outline" onclick="markAllAsRead()">
+            <i class="fas fa-check-double me-1"></i>Tout marquer lu
+        </button>
+    </div>
+</div>
+
+<!-- Statistiques rapides -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card info">
+            <div class="stat-header">
+                <span class="stat-title">Non lus</span>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #607D8B 0%, #546E7A 100%);">
+                    <i class="fas fa-envelope"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ contacts|rejectattr('is_read')|list|length }}</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card success">
+            <div class="stat-header">
+                <span class="stat-title">Lus</span>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%);">
+                    <i class="fas fa-envelope-open"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ contacts|selectattr('is_read')|list|length }}</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card warning">
+            <div class="stat-header">
+                <span class="stat-title">Aujourd'hui</span>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ contacts|selectattr('date_envoi')|list|length }}</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">Total</span>
+                <div class="stat-icon">
+                    <i class="fas fa-inbox"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ contacts|length }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Liste des messages -->
+<div class="admin-table-container">
+    <div class="table-header">
+        <h3 class="table-title">Messages reçus</h3>
+        <div class="table-actions">
+            <div class="btn-group">
+                <button class="btn-admin btn-admin-outline btn-admin-sm dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fas fa-filter me-1"></i>Filtrer
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="?filter=unread">Non lus seulement</a></li>
+                    <li><a class="dropdown-item" href="?filter=read">Lus seulement</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('admin.messages') }}">Tous</a></li>
+                </ul>
+            </div>
+            <button class="btn-admin btn-admin-outline btn-admin-sm" onclick="exportTableData('messagesTable', 'messages_infa')">
+                <i class="fas fa-download me-1"></i>Exporter
+            </button>
+        </div>
+    </div>
+    
+    {% if contacts %}
+    <div class="table-responsive">
+        <table class="admin-table data-table" id="messagesTable">
+            <thead>
+                <tr>
+                    <th>Statut</th>
+                    <th>Expéditeur</th>
+                    <th>Sujet</th>
+                    <th>Date</th>
+                    <th class="no-sort">Message</th>
+                    <th class="no-sort">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for contact in contacts %}
+                <tr class="{{ 'table-warning' if not contact.is_read else '' }}">
+                    <td>
+                        {% if contact.is_read %}
+                            <span class="status-badge status-active">
+                                <i class="fas fa-envelope-open me-1"></i>Lu
+                            </span>
+                        {% else %}
+                            <span class="status-badge status-pending">
+                                <i class="fas fa-envelope me-1"></i>Non lu
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div>
+                            <strong class="text-primary">{{ contact.nom }}</strong>
+                            <br><small class="text-muted">{{ contact.email }}</small>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="fw-bold">{{ contact.sujet }}</span>
+                    </td>
+                    <td>
+                        <div>
+                            {{ contact.date_envoi.strftime('%d/%m/%Y') if contact.date_envoi else 'Date inconnue' }}
+                            <br><small class="text-muted">{{ contact.date_envoi.strftime('%H:%M') if contact.date_envoi else '' }}</small>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="message-preview">
+                            {{ contact.message|truncate(100) }}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn-admin btn-admin-sm btn-admin-primary" 
+                                    onclick="voirMessage({{ contact.id }})"
+                                    data-tooltip="Voir le message">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            
+                            {% if not contact.is_read %}
+                            <button class="btn-admin btn-admin-sm btn-admin-success" 
+                                    onclick="marquerLu({{ contact.id }})"
+                                    data-tooltip="Marquer comme lu">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            {% endif %}
+                            
+                            <a href="mailto:{{ contact.email }}?subject=Re: {{ contact.sujet }}" 
+                               class="btn-admin btn-admin-sm btn-admin-info"
+                               data-tooltip="Répondre par email">
+                                <i class="fas fa-reply"></i>
+                            </a>
+                            
+                            <button class="btn-admin btn-admin-sm btn-admin-danger" 
+                                    onclick="confirmerSuppression('{{ contact.nom }}', '{{ url_for('admin.messages') }}?delete={{ contact.id }}')"
+                                    data-tooltip="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+        <h4 class="text-muted">Aucun message</h4>
+        <p class="text-muted">Les messages de contact apparaîtront ici.</p>
+        <a href="{{ url_for('contact') }}" target="_blank" class="btn-admin btn-admin-primary">
+            <i class="fas fa-external-link-alt me-2"></i>Voir le formulaire de contact
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal de visualisation du message -->
+<div class="modal-admin" id="messageModal">
+    <div class="modal-content-admin" style="max-width: 700px;">
+        <div class="modal-header-admin">
+            <h4 class="modal-title-admin">Message de contact</h4>
+            <button class="modal-close" onclick="closeModal('messageModal')">&times;</button>
+        </div>
+        <div class="modal-body-admin" id="messageContent">
+            <!-- Contenu du message sera chargé ici -->
+        </div>
+        <div class="modal-footer-admin">
+            <button type="button" class="btn-admin btn-admin-outline" onclick="closeModal('messageModal')">
+                Fermer
+            </button>
+            <button type="button" class="btn-admin btn-admin-primary" id="replyButton">
+                <i class="fas fa-reply me-1"></i>Répondre
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal-admin" id="suppressionModal">
+    <div class="modal-content-admin">
+        <div class="modal-header-admin">
+            <h4 class="modal-title-admin">Confirmer la suppression</h4>
+            <button class="modal-close" onclick="closeModal('suppressionModal')">&times;</button>
+        </div>
+        <div class="modal-body-admin">
+            <div class="text-center">
+                <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                <p>Êtes-vous sûr de vouloir supprimer le message de :</p>
+                <h5 id="expediteurNom" class="text-primary"></h5>
+                <p class="text-muted">Cette action est irréversible.</p>
+            </div>
+        </div>
+        <div class="modal-footer-admin">
+            <button type="button" class="btn-admin btn-admin-outline" onclick="closeModal('suppressionModal')">
+                Annuler
+            </button>
+            <a id="suppressionLink" href="#" class="btn-admin btn-admin-danger">
+                <i class="fas fa-trash me-1"></i>Supprimer définitivement
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.message-preview {
+    max-width: 200px;
+    line-height: 1.4;
+}
+
+.table-warning {
+    background-color: rgba(255, 193, 7, 0.1) !important;
+}
+
+.message-detail {
+    background: var(--admin-light);
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin: 1rem 0;
+}
+
+.message-meta {
+    border-bottom: 1px solid var(--admin-border);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.message-body {
+    white-space: pre-wrap;
+    line-height: 1.6;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function voirMessage(messageId) {
+    fetch(`/admin/message/${messageId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const message = data.message;
+                document.getElementById('messageContent').innerHTML = `
+                    <div class="message-detail">
+                        <div class="message-meta">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>De :</strong> ${message.nom}<br>
+                                    <strong>Email :</strong> ${message.email}
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Sujet :</strong> ${message.sujet}<br>
+                                    <strong>Date :</strong> ${new Date(message.date_envoi).toLocaleDateString('fr-FR')}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="message-body">
+                            ${message.message}
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('replyButton').onclick = function() {
+                    window.location.href = `mailto:${message.email}?subject=Re: ${message.sujet}`;
+                };
+                
+                openModal('messageModal');
+                
+                // Marquer comme lu automatiquement
+                if (!message.is_read) {
+                    marquerLu(messageId, false);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors du chargement du message');
+        });
+}
+
+function marquerLu(messageId, reload = true) {
+    fetch(`/admin/message/${messageId}/marquer-lu`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('meta[name=csrf-token]')?.getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && reload) {
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        if (reload) {
+            alert('Erreur lors de la mise à jour du statut');
+        }
+    });
+}
+
+function markAllAsRead() {
+    if (confirm('Marquer tous les messages comme lus ?')) {
+        fetch('/admin/messages/marquer-tous-lus', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name=csrf-token]')?.getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Erreur lors de la mise à jour');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la mise à jour');
+        });
+    }
+}
+
+function confirmerSuppression(expediteur, urlSuppression) {
+    document.getElementById('expediteurNom').textContent = expediteur;
+    document.getElementById('suppressionLink').href = urlSuppression;
+    openModal('suppressionModal');
+}
+
+function openModal(modalId) {
+    document.getElementById(modalId).classList.add('show');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('show');
+}
+</script>
+{% endblock %}

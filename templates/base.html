@@ -28,8 +28,8 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('index') }}">
-                <i class="fas fa-seedling me-2"></i>
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='images/logo-infa.jpg') }}" alt="INFA Logo" class="navbar-logo me-2">
                 INFA Tové
             </a>
             
@@ -117,7 +117,10 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-4 mb-4">
-                    <h5><i class="fas fa-seedling me-2"></i>{{ site_config.nom_institut }}</h5>
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="{{ url_for('static', filename='images/logo-infa.jpg') }}" alt="INFA Logo" class="footer-logo me-3">
+                        <h5>{{ site_config.nom_institut }}</h5>
+                    </div>
                     <p class="mb-3">{{ site_config.mission|truncate(150) if site_config.mission else "Institut de formation agricole de référence au Togo." }}</p>
                     
                     {% if site_config.facebook or site_config.twitter or site_config.linkedin %}

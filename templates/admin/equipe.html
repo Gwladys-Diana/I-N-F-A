@@ -1,0 +1,282 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Équipe - {{ super() }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Accueil</a></li>
+<li class="breadcrumb-item active">Équipe</li>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">Gestion de l'équipe</h1>
+        <p class="page-subtitle">{{ membres|length }} membre{{ 's' if membres|length > 1 else '' }} dans l'équipe</p>
+    </div>
+    <div>
+        <a href="{{ url_for('admin.nouveau_membre') }}" class="btn-admin btn-admin-primary">
+            <i class="fas fa-plus me-1"></i>Nouveau membre
+        </a>
+    </div>
+</div>
+
+<!-- Statistiques rapides -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card success">
+            <div class="stat-header">
+                <span class="stat-title">Actifs</span>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%);">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ membres|selectattr('is_active')|list|length }}</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card info">
+            <div class="stat-header">
+                <span class="stat-title">Enseignants</span>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #607D8B 0%, #546E7A 100%);">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ membres|selectattr('poste', 'match', '.*[Ee]nseignant.*')|list|length }}</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card warning">
+            <div class="stat-header">
+                <span class="stat-title">Administrat.</span>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ membres|selectattr('poste', 'match', '.*[Aa]dmin.*')|list|length }}</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">Total</span>
+                <div class="stat-icon">
+                    <i class="fas fa-id-badge"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ membres|length }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Liste des membres -->
+<div class="admin-table-container">
+    <div class="table-header">
+        <h3 class="table-title">Membres de l'équipe</h3>
+        <div class="table-actions">
+            <button class="btn-admin btn-admin-outline btn-admin-sm" onclick="exportTableData('equipeTable', 'equipe_infa')">
+                <i class="fas fa-download me-1"></i>Exporter
+            </button>
+        </div>
+    </div>
+    
+    {% if membres %}
+    <div class="table-responsive">
+        <table class="admin-table data-table" id="equipeTable">
+            <thead>
+                <tr>
+                    <th>Photo</th>
+                    <th>Nom complet</th>
+                    <th>Poste</th>
+                    <th>Département</th>
+                    <th>Contact</th>
+                    <th>Statut</th>
+                    <th class="no-sort">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for membre in membres %}
+                <tr>
+                    <td>
+                        {% if membre.photo_filename %}
+                        <img src="{{ url_for('static', filename='uploads/' + membre.photo_filename) }}" 
+                             alt="{{ membre.prenom }} {{ membre.nom }}" 
+                             class="member-photo">
+                        {% else %}
+                        <div class="member-photo-placeholder">
+                            {{ membre.prenom[0] }}{{ membre.nom[0] }}
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div>
+                            <strong class="text-primary">{{ membre.prenom }} {{ membre.nom }}</strong>
+                            {% if membre.specialites %}
+                            <br><small class="text-muted">{{ membre.specialites|truncate(50) }}</small>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="fw-bold">{{ membre.poste }}</span>
+                    </td>
+                    <td>
+                        {{ membre.departement or '-' }}
+                    </td>
+                    <td>
+                        {% if membre.email %}
+                        <div><i class="fas fa-envelope text-muted me-1"></i>{{ membre.email }}</div>
+                        {% endif %}
+                        {% if membre.telephone %}
+                        <div><i class="fas fa-phone text-muted me-1"></i>{{ membre.telephone }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if membre.is_active %}
+                            <span class="status-badge status-active">Actif</span>
+                        {% else %}
+                            <span class="status-badge status-inactive">Inactif</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="{{ url_for('admin.modifier_membre', membre_id=membre.id) }}" 
+                               class="btn-admin btn-admin-sm btn-admin-primary" 
+                               data-tooltip="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            
+                            {% if membre.is_active %}
+                            <button class="btn-admin btn-admin-sm btn-admin-warning" 
+                                    onclick="toggleMemberStatus({{ membre.id }}, false)"
+                                    data-tooltip="Désactiver">
+                                <i class="fas fa-user-slash"></i>
+                            </button>
+                            {% else %}
+                            <button class="btn-admin btn-admin-sm btn-admin-success" 
+                                    onclick="toggleMemberStatus({{ membre.id }}, true)"
+                                    data-tooltip="Activer">
+                                <i class="fas fa-user-check"></i>
+                            </button>
+                            {% endif %}
+                            
+                            <button class="btn-admin btn-admin-sm btn-admin-danger" 
+                                    onclick="confirmerSuppression('{{ membre.prenom }} {{ membre.nom }}', '{{ url_for('admin.equipe') }}?delete={{ membre.id }}')"
+                                    data-tooltip="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-users fa-4x text-muted mb-3"></i>
+        <h4 class="text-muted">Aucun membre dans l'équipe</h4>
+        <p class="text-muted">Commencez par ajouter le premier membre de l'équipe.</p>
+        <a href="{{ url_for('admin.nouveau_membre') }}" class="btn-admin btn-admin-primary">
+            <i class="fas fa-plus me-2"></i>Ajouter le premier membre
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal de confirmation -->
+<div class="modal-admin" id="suppressionModal">
+    <div class="modal-content-admin">
+        <div class="modal-header-admin">
+            <h4 class="modal-title-admin">Confirmer la suppression</h4>
+            <button class="modal-close" onclick="closeModal('suppressionModal')">&times;</button>
+        </div>
+        <div class="modal-body-admin">
+            <div class="text-center">
+                <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                <p>Êtes-vous sûr de vouloir supprimer le membre :</p>
+                <h5 id="membreNom" class="text-primary"></h5>
+                <p class="text-muted">Cette action est irréversible.</p>
+            </div>
+        </div>
+        <div class="modal-footer-admin">
+            <button type="button" class="btn-admin btn-admin-outline" onclick="closeModal('suppressionModal')">
+                Annuler
+            </button>
+            <a id="suppressionLink" href="#" class="btn-admin btn-admin-danger">
+                <i class="fas fa-trash me-1"></i>Supprimer définitivement
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.member-photo {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid var(--admin-border);
+}
+
+.member-photo-placeholder {
+    width: 50px;
+    height: 50px;
+    background: var(--admin-secondary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleMemberStatus(memberId, isActive) {
+    const action = isActive ? 'activer' : 'désactiver';
+    if (confirm(`Êtes-vous sûr de vouloir ${action} ce membre ?`)) {
+        fetch(`/admin/membre/${memberId}/toggle`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name=csrf-token]')?.getAttribute('content')
+            },
+            body: JSON.stringify({ is_active: isActive })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Erreur lors de la modification du statut');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la modification du statut');
+        });
+    }
+}
+
+function confirmerSuppression(nomMembre, urlSuppression) {
+    document.getElementById('membreNom').textContent = nomMembre;
+    document.getElementById('suppressionLink').href = urlSuppression;
+    openModal('suppressionModal');
+}
+
+function openModal(modalId) {
+    document.getElementById(modalId).classList.add('show');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('show');
+}
+</script>
+{% endblock %}
