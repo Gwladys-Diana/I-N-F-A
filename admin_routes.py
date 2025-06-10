@@ -336,6 +336,78 @@ def equipe():
     membres = MembreEquipe.query.order_by(MembreEquipe.ordre_affichage, MembreEquipe.nom).all()
     return render_template('admin/equipe.html', membres=membres)
 
+@admin.route('/configuration', methods=['GET', 'POST'])
+@login_required
+def configuration():
+    """Configuration du site"""
+    config = Configuration.query.first()
+    if not config:
+        config = Configuration()
+        db.session.add(config)
+        db.session.commit()
+    
+    form = ConfigurationForm(obj=config)
+    
+    if form.validate_on_submit():
+        form.populate_obj(config)
+        config.date_modification = datetime.utcnow()
+        db.session.commit()
+        flash('Configuration mise à jour avec succès!', 'success')
+        return redirect(url_for('admin.configuration'))
+    
+    return render_template('admin/configuration.html', form=form, config=config)
+
+@admin.route('/messages')
+@login_required
+def messages():
+    """Messages de contact"""
+    contacts = Contact.query.order_by(Contact.date_envoi.desc()).all()
+    return render_template('admin/messages.html', contacts=contacts)
+
+@admin.route('/message/<int:message_id>/marquer-lu')
+@login_required
+def marquer_message_lu(message_id):
+    """Marquer un message comme lu"""
+    contact = Contact.query.get_or_404(message_id)
+    contact.is_read = True
+    db.session.commit()
+    flash('Message marqué comme lu.', 'success')
+    return redirect(url_for('admin.messages'))
+
+@admin.route('/gestion-admins')
+@login_required
+def gestion_admins():
+    """Gestion des administrateurs (Super Admin seulement)"""
+    if not current_user.is_superadmin:
+        flash('Accès non autorisé.', 'error')
+        return redirect(url_for('admin.dashboard'))
+    
+    admins = Admin.query.order_by(Admin.date_creation.desc()).all()
+    return render_template('admin/gestion_admins.html', admins=admins)
+
+@admin.route('/profil', methods=['GET', 'POST'])
+@login_required
+def profil():
+    """Profil de l'administrateur connecté"""
+    if request.method == 'POST':
+        current_user.nom = request.form.get('nom', current_user.nom)
+        current_user.prenom = request.form.get('prenom', current_user.prenom)
+        current_user.email = request.form.get('email', current_user.email)
+        
+        # Gestion de l'avatar si présent
+        if 'avatar' in request.files and request.files['avatar'].filename:
+            try:
+                filename = save_uploaded_file(request.files['avatar'], 'uploads', 'avatar_')
+                current_user.avatar_filename = filename
+            except Exception as e:
+                flash(f'Erreur lors du téléchargement de l\'avatar: {str(e)}', 'error')
+        
+        db.session.commit()
+        flash('Profil mis à jour avec succès!', 'success')
+        return redirect(url_for('admin.profil'))
+    
+    return render_template('admin/profil.html')
+
 @admin.route('/membre/nouveau', methods=['GET', 'POST'])
 @login_required
 def nouveau_membre():
@@ -402,40 +474,9 @@ def publier_resultats():
     flash(f'Résultats de la session {session_concours} publiés avec succès!', 'success')
     return redirect(url_for('admin.resultats'))
 
-@admin.route('/configuration', methods=['GET', 'POST'])
-@login_required
-def configuration():
-    """Configuration du site"""
-    config = Configuration.query.first()
-    if not config:
-        config = Configuration()
-        db.session.add(config)
-        db.session.commit()
-    
-    form = ConfigurationForm(obj=config)
-    
-    if form.validate_on_submit():
-        form.populate_obj(config)
-        config.date_modification = datetime.utcnow()
-        
-        db.session.commit()
-        
-        flash('Configuration mise à jour avec succès!', 'success')
-        return redirect(url_for('admin.configuration'))
-    
-    return render_template('admin/config.html', form=form, config=config)
 
-@admin.route('/messages')
-@login_required
-def messages():
-    """Messages de contact"""
-    messages = Contact.query.order_by(Contact.date_envoi.desc()).all()
-    
-    # Marquer tous les messages comme lus
-    Contact.query.filter_by(is_read=False).update({'is_read': True})
-    db.session.commit()
-    
-    return render_template('admin/messages.html', messages=messages)
+
+
 
 # Enregistrer le blueprint
 app.register_blueprint(admin)

@@ -26,172 +26,249 @@
     
     {% block extra_css %}{% endblock %}
 </head>
-<body class="admin-body">
-    <div class="admin-wrapper">
-        <!-- Sidebar -->
-        <nav class="admin-sidebar" id="adminSidebar">
-            <div class="sidebar-header">
-                <a href="{{ url_for('admin.dashboard') }}" class="sidebar-logo">
-                    <i class="fas fa-seedling"></i>
-                    <span class="menu-text">INFA Admin</span>
-                </a>
-            </div>
-            
-            <ul class="sidebar-menu">
-                <li>
-                    <a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if request.endpoint == 'admin.dashboard' else '' }}">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span class="menu-text">Tableau de bord</span>
-                    </a>
-                </li>
-                
-                <li>
-                    <a href="{{ url_for('admin.candidatures') }}" class="{{ 'active' if 'candidature' in request.endpoint else '' }}">
-                        <i class="fas fa-users"></i>
-                        <span class="menu-text">Candidatures</span>
-                    </a>
-                </li>
-                
-                <li>
-                    <a href="{{ url_for('admin.formations') }}" class="{{ 'active' if 'formation' in request.endpoint else '' }}">
-                        <i class="fas fa-graduation-cap"></i>
-                        <span class="menu-text">Formations</span>
-                    </a>
-                </li>
-                
-                <li>
-                    <a href="{{ url_for('admin.actualites') }}" class="{{ 'active' if 'actualite' in request.endpoint else '' }}">
-                        <i class="fas fa-newspaper"></i>
-                        <span class="menu-text">Actualités</span>
-                    </a>
-                </li>
-                
-                <li>
-                    <a href="{{ url_for('admin.equipe') }}" class="{{ 'active' if 'equipe' in request.endpoint or 'membre' in request.endpoint else '' }}">
-                        <i class="fas fa-user-tie"></i>
-                        <span class="menu-text">Équipe</span>
-                    </a>
-                </li>
-                
-                <li>
-                    <a href="{{ url_for('admin.resultats') }}" class="{{ 'active' if 'resultats' in request.endpoint else '' }}">
-                        <i class="fas fa-trophy"></i>
-                        <span class="menu-text">Résultats</span>
-                    </a>
-                </li>
-                
-                <li>
-                    <a href="{{ url_for('admin.messages') }}" class="{{ 'active' if 'messages' in request.endpoint else '' }}">
-                        <i class="fas fa-envelope"></i>
-                        <span class="menu-text">Messages</span>
-                    </a>
-                </li>
-                
-                <li>
-                    <a href="{{ url_for('admin.configuration') }}" class="{{ 'active' if 'configuration' in request.endpoint else '' }}">
-                        <i class="fas fa-cog"></i>
-                        <span class="menu-text">Configuration</span>
-                    </a>
-                </li>
-                
-                <li>
-                    <a href="{{ url_for('index') }}" target="_blank">
-                        <i class="fas fa-external-link-alt"></i>
-                        <span class="menu-text">Voir le site</span>
-                    </a>
-                </li>
-                
-                <li>
-                    <a href="{{ url_for('admin.logout') }}">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span class="menu-text">Déconnexion</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-
-        <!-- Main Content -->
-        <main class="admin-main">
-            <!-- Header -->
-            <header class="admin-header">
-                <div class="header-left">
-                    <button class="sidebar-toggle" id="sidebarToggle">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb">
-                            {% block breadcrumb %}
-                            <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Accueil</a></li>
-                            <li class="breadcrumb-item active">Administration</li>
-                            {% endblock %}
-                        </ol>
-                    </nav>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg admin-navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('admin.dashboard') }}">
+                <div class="logo-container me-3">
+                    <img src="{{ url_for('static', filename='images/logo-infa.jpg') }}" alt="INFA Logo" class="admin-logo">
                 </div>
+                <div>
+                    <span class="brand-text">INFA Tové</span>
+                    <small class="brand-subtitle d-block">Administration</small>
+                </div>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
+                            <i class="fas fa-tachometer-alt me-1"></i>Tableau de bord
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.candidatures') }}">
+                            <i class="fas fa-users me-1"></i>Candidatures
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.formations') }}">
+                            <i class="fas fa-graduation-cap me-1"></i>Formations
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.actualites') }}">
+                            <i class="fas fa-newspaper me-1"></i>Actualités
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.equipe') }}">
+                            <i class="fas fa-user-tie me-1"></i>Équipe
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.configuration') }}">
+                            <i class="fas fa-cog me-1"></i>Configuration
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.messages') }}">
+                            <i class="fas fa-envelope me-1"></i>Messages
+                        </a>
+                    </li>
+                    {% if current_user.is_superadmin %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.gestion_admins') }}">
+                            <i class="fas fa-user-shield me-1"></i>Administrateurs
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
                 
-                <div class="header-right">
-                    <div class="user-menu">
-                        <div class="user-avatar" data-bs-toggle="dropdown">
-                            {{ current_user.prenom[0] if current_user.prenom else current_user.username[0] }}{{ current_user.nom[0] if current_user.nom else '' }}
-                        </div>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <span class="dropdown-item-text">
-                                    <strong>{{ current_user.prenom or current_user.username }} {{ current_user.nom or '' }}</strong><br>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle user-profile" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <div class="d-flex align-items-center">
+                                {% if current_user.avatar_filename %}
+                                <img src="{{ url_for('static', filename='uploads/' + current_user.avatar_filename) }}" 
+                                     alt="Avatar" class="user-avatar me-2">
+                                {% else %}
+                                <div class="user-avatar-placeholder me-2">
+                                    {{ current_user.prenom[0] }}{{ current_user.nom[0] }}
+                                </div>
+                                {% endif %}
+                                <div class="user-info">
+                                    <span class="user-name">{{ current_user.prenom }} {{ current_user.nom }}</span>
+                                    <small class="user-role d-block">
+                                        {% if current_user.is_superadmin %}
+                                            <i class="fas fa-crown text-warning"></i> Super Admin
+                                        {% else %}
+                                            <i class="fas fa-user-shield"></i> {{ current_user.role or 'Admin' }}
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end user-dropdown">
+                            <li class="dropdown-header">
+                                <div class="text-center">
+                                    {% if current_user.avatar_filename %}
+                                    <img src="{{ url_for('static', filename='uploads/' + current_user.avatar_filename) }}" 
+                                         alt="Avatar" class="user-avatar-large mb-2">
+                                    {% else %}
+                                    <div class="user-avatar-large-placeholder mb-2">
+                                        {{ current_user.prenom[0] }}{{ current_user.nom[0] }}
+                                    </div>
+                                    {% endif %}
+                                    <div class="fw-bold">{{ current_user.prenom }} {{ current_user.nom }}</div>
                                     <small class="text-muted">{{ current_user.email }}</small>
-                                </span>
+                                </div>
                             </li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ url_for('admin.logout') }}">
+                            <li><a class="dropdown-item" href="{{ url_for('admin.profil') }}">
+                                <i class="fas fa-user-edit me-2"></i>Mon profil
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('index') }}" target="_blank">
+                                <i class="fas fa-external-link-alt me-2"></i>Voir le site
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('admin.logout') }}">
                                 <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
                             </a></li>
                         </ul>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Flash messages -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <div class="admin-content">
-                        {% for category, message in messages %}
-                            <div class="alert-admin alert-admin-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                                {% if category == 'success' %}
-                                    <i class="fas fa-check-circle me-2"></i>
-                                {% elif category == 'warning' %}
-                                    <i class="fas fa-exclamation-triangle me-2"></i>
-                                {% elif category == 'error' %}
-                                    <i class="fas fa-times-circle me-2"></i>
-                                {% else %}
-                                    <i class="fas fa-info-circle me-2"></i>
-                                {% endif %}
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            {% endwith %}
-
-            <!-- Content -->
-            <div class="admin-content">
-                {% block content %}{% endblock %}
+                    </li>
+                </ul>
             </div>
-        </main>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid admin-container">
+        <!-- Breadcrumb -->
+        {% if self.breadcrumb() %}
+        <div class="admin-breadcrumb">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    {% block breadcrumb %}{% endblock %}
+                </ol>
+            </nav>
+        </div>
+        {% endif %}
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert-admin alert-admin-{{ 'danger' if category == 'error' else category }} animate-fade-in">
+                        <div>
+                            {% if category == 'success' %}
+                                <i class="fas fa-check-circle fa-lg"></i>
+                            {% elif category == 'warning' %}
+                                <i class="fas fa-exclamation-triangle fa-lg"></i>
+                            {% elif category == 'error' %}
+                                <i class="fas fa-times-circle fa-lg"></i>
+                            {% else %}
+                                <i class="fas fa-info-circle fa-lg"></i>
+                            {% endif %}
+                        </div>
+                        <div>{{ message }}</div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Page Content -->
+        {% block content %}{% endblock %}
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+    <!-- Scripts -->
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     
-    <!-- Custom Admin JS -->
-    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+    <!-- Admin JS -->
+    <script>
+    console.log('INFA - Scripts admin initialisés');
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize DataTables
+        if (typeof $.fn.DataTable !== 'undefined') {
+            $('.data-table').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/French.json'
+                },
+                responsive: true,
+                pageLength: 25,
+                order: [[0, 'desc']]
+            });
+        }
+        
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-tooltip]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl, {
+                title: tooltipTriggerEl.getAttribute('data-tooltip')
+            });
+        });
+        
+        // Auto-hide alerts
+        setTimeout(function() {
+            $('.alert-admin').fadeOut('slow');
+        }, 5000);
+        
+        console.log('INFA - Interface admin chargée');
+    });
+    
+    // Export table data
+    function exportTableData(tableId, filename) {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        
+        let csv = [];
+        const rows = table.querySelectorAll('tr');
+        
+        for (let i = 0; i < rows.length; i++) {
+            const row = [], cols = rows[i].querySelectorAll('td, th');
+            
+            for (let j = 0; j < cols.length - 1; j++) { // Skip last column (actions)
+                let cellText = cols[j].innerText.replace(/"/g, '""');
+                row.push('"' + cellText + '"');
+            }
+            
+            csv.push(row.join(','));
+        }
+        
+        // Download CSV
+        const csvFile = new Blob([csv.join('\n')], { type: 'text/csv' });
+        const downloadLink = document.createElement('a');
+        downloadLink.download = filename + '_' + new Date().toISOString().split('T')[0] + '.csv';
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        downloadLink.style.display = 'none';
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }
+    
+    // Statistics update
+    function updateStats() {
+        // This would update dashboard statistics
+        console.log('Actualisation des statistiques...');
+    }
+    
+    // Update stats every 30 seconds
+    setInterval(updateStats, 30000);
+    </script>
     
     {% block extra_js %}{% endblock %}
 </body>
