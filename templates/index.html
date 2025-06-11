@@ -11,7 +11,8 @@
                 <div class="col-lg-8">
                     <h1 class="hero-title fade-in-up">{{ site_config.nom_institut }}</h1>
                     <p class="hero-subtitle fade-in-up">
-                        {{ site_config.message_accueil if site_config.message_accueil else "Formez-vous aux métiers de l'agriculture moderne et contribuez au développement durable du Togo" }}
+                        {{ site_config.message_accueil if site_config.message_accueil else "Formez-vous aux métiers de
+                        l'agriculture moderne et contribuez au développement durable du Togo" }}
                     </p>
                     <div class="mt-4 fade-in-up">
                         <a href="{{ url_for('formations') }}" class="btn btn-primary btn-lg me-3">
@@ -76,16 +77,19 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6 mb-4">
-                <img src="{{ url_for('static', filename='images/logo-infa.jpg') }}" alt="INFA Logo" class="navbar-logo me-2"
-                     alt="Institut formation agricole" class="img-fluid rounded">
+                <img src="{{ url_for('static', filename='images/grapevine-7368800_1280.jpg') }}" alt="INFA Logo"
+                    class="navbar-logo me-2" alt="Institut formation agricole" class="img-fluid rounded">
             </div>
             <div class="col-lg-6">
                 <h2 class="section-title text-start">À propos de l'INFA</h2>
                 <p class="lead">
-                    L'Institut National de Formation Agricole de Tové est un établissement de référence pour la formation agricole au Togo.
+                    L'Institut National de Formation Agricole de Tové est un établissement de référence pour la
+                    formation agricole au Togo.
                 </p>
                 <p>
-                    {{ site_config.mission if site_config.mission else "Notre mission est de former des professionnels compétents dans les domaines de l'agriculture moderne, de l'élevage et du développement rural, capables de contribuer efficacement au développement socio-économique du pays." }}
+                    {{ site_config.mission if site_config.mission else "Notre mission est de former des professionnels
+                    compétents dans les domaines de l'agriculture moderne, de l'élevage et du développement rural,
+                    capables de contribuer efficacement au développement socio-économique du pays." }}
                 </p>
                 <div class="row mt-4">
                     <div class="col-sm-6 mb-3">
@@ -131,25 +135,28 @@
             <div class="col-lg-6 mb-4">
                 <div class="card formation-card h-100">
                     <div class="card-body">
-                        <div class="formation-badge">{{ formation.duree if formation.duree else "Formation complète" }}</div>
+                        <div class="formation-badge">{{ formation.duree if formation.duree else "Formation complète" }}
+                        </div>
                         <h5 class="card-title">{{ formation.nom }}</h5>
-                        <p class="card-text">{{ formation.description|truncate(120) if formation.description else "Formation de qualité dans le domaine agricole." }}</p>
-                        
+                        <p class="card-text">{{ formation.description|truncate(120) if formation.description else
+                            "Formation de qualité dans le domaine agricole." }}</p>
+
                         {% if formation.niveau_requis %}
                         <p class="text-muted small mb-2">
                             <i class="fas fa-graduation-cap me-1"></i>
                             Niveau requis: {{ formation.niveau_requis }}
                         </p>
                         {% endif %}
-                        
+
                         {% if formation.places_disponibles %}
                         <p class="text-muted small mb-3">
                             <i class="fas fa-users me-1"></i>
                             Places disponibles: {{ formation.places_disponibles }}
                         </p>
                         {% endif %}
-                        
-                        <a href="{{ url_for('formation_detail', formation_id=formation.id) }}" class="btn btn-outline-primary">
+
+                        <a href="{{ url_for('formation_detail', formation_id=formation.id) }}"
+                            class="btn btn-outline-primary">
                             <i class="fas fa-info-circle me-2"></i>Détails
                         </a>
                     </div>
@@ -176,23 +183,27 @@
             <div class="col-lg-4 mb-4">
                 <div class="card actualite-card h-100">
                     {% if actualite.image_filename %}
-                    <div class="actualite-image" style="background-image: url('{{ url_for('static', filename='uploads/' + actualite.image_filename) }}')">
+                    <div class="actualite-image" style="background-image: url(" {{ url_for('static', filename='uploads/'
+                        + actualite.image_filename) }}')">
                         <div class="actualite-date">
                             {{ actualite.date_publication.strftime('%d %b') if actualite.date_publication else '' }}
                         </div>
                     </div>
                     {% else %}
-                    <div class="actualite-image" style="background-image: url('https://pixabay.com/get/g809a70fd2ae054f619b452d972faec25d1a27695bcd82a0380b351164520c7c2d517587a8ac18eabee5fbdc646eab231dc41f86d6c570378a9c3dfc67badaad5_1280.jpg')">
+                    <div class="actualite-image"
+                        style="background-image: url('https://pixabay.com/get/g809a70fd2ae054f619b452d972faec25d1a27695bcd82a0380b351164520c7c2d517587a8ac18eabee5fbdc646eab231dc41f86d6c570378a9c3dfc67badaad5_1280.jpg')">
                         <div class="actualite-date">
                             {{ actualite.date_publication.strftime('%d %b') if actualite.date_publication else '' }}
                         </div>
                     </div>
                     {% endif %}
-                    
+
                     <div class="card-body">
                         <h5 class="card-title">{{ actualite.titre }}</h5>
-                        <p class="card-text">{{ actualite.resume|truncate(100) if actualite.resume else actualite.contenu|truncate(100) }}</p>
-                        <a href="{{ url_for('actualite_detail', actualite_id=actualite.id) }}" class="btn btn-outline-primary">
+                        <p class="card-text">{{ actualite.resume|truncate(100) if actualite.resume else
+                            actualite.contenu|truncate(100) }}</p>
+                        <a href="{{ url_for('actualite_detail', actualite_id=actualite.id) }}"
+                            class="btn btn-outline-primary">
                             <i class="fas fa-arrow-right me-2"></i>Lire la suite
                         </a>
                     </div>
@@ -217,16 +228,18 @@
             <div class="col-lg-8">
                 <h2>Les candidatures sont ouvertes !</h2>
                 <p class="lead mb-4">
-                    {{ site_config.message_candidature if site_config.message_candidature else "Rejoignez-nous pour la session " + (site_config.session_concours_actuelle if site_config.session_concours_actuelle else "2024") + " et donnez une nouvelle dimension à votre carrière agricole." }}
+                    {{ site_config.message_candidature if site_config.message_candidature else "Rejoignez-nous pour la
+                    session " + (site_config.session_concours_actuelle if site_config.session_concours_actuelle else
+                    "2024") + " et donnez une nouvelle dimension à votre carrière agricole." }}
                 </p>
-                
+
                 {% if site_config.date_limite_candidature %}
                 <p class="mb-4">
                     <i class="fas fa-calendar-alt me-2"></i>
                     Date limite de candidature: {{ site_config.date_limite_candidature.strftime('%d %B %Y') }}
                 </p>
                 {% endif %}
-                
+
                 <a href="{{ url_for('candidature') }}" class="btn btn-outline-light btn-lg">
                     <i class="fas fa-file-alt me-2"></i>Candidater maintenant
                 </a>
@@ -241,8 +254,9 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-8 mb-4 mb-lg-0">
-                <h3>Besoin d'informations ?</h3>
-                <p class="lead mb-0">Contactez-nous pour plus de renseignements sur nos formations et modalités d'inscription.</p>
+                <h3>Besoin d'informations ? </h3>
+                <p class="lead mb-0">Contactez-nous pour plus de renseignements sur nos formations et modalités
+                    d'inscription.</p>
             </div>
             <div class="col-lg-4 text-lg-end">
                 <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg">
