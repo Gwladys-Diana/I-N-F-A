@@ -710,3 +710,11 @@ a:hover {
         border: 1px solid #ddd !important;
     }
 }
+
+.about-image {
+    width: 100%;         /* Prend toute la largeur disponible */
+    max-width: 600px;    /* Ne dépasse pas 600px */
+    height: auto;        /* Garde le ratio original */
+    display: block;
+    margin: 0 auto;      /* Centre l’image si nécessaire */
+}
