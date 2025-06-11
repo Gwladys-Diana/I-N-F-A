@@ -27,15 +27,33 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "secret_key_default")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-# Configuration MySQL (via .env ou directement ici)
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "mysql+pymysql://root@localhost/infa_base_deploye")
+# -----------------------------------------
+# CONFIGURATION DE LA BASE DE DONNÉES
+# -----------------------------------------
+
+# ⛔️ Configuration MySQL (commentée pour usage PostgreSQL)
+# app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+#     "DATABASE_URL", 
+#     "mysql+pymysql://root@localhost/infa_base_deploye"
+# )
+
+# ✅ Configuration PostgreSQL (Render ou local)
+# Exemple : postgresql://user:password@host:port/dbname
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+    "DATABASE_URL", 
+    "postgresql://infa:APf50FwTxkydOfhGwj1X9rUQaODWImGP@dpg-d14ptcgdl3ps738hb8rg-a.oregon-postgres.render.com/infa_de_tove"
+)
+
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
 }
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# Configuration de l’upload de fichiers
+# -----------------------------------------
+# CONFIGURATION DES FICHIERS À TÉLÉCHARGER
+# -----------------------------------------
+
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'uploads')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
 ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'}
