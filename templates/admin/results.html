@@ -1,0 +1,291 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Gestion des résultats - Administration INFA{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold">Gestion des résultats</h1>
+            <p class="text-muted">Publier et gérer les résultats des concours</p>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Session</label>
+                    <select name="session" class="form-select">
+                        <option value="all">Toutes les sessions</option>
+                        {% for session in sessions %}
+                        <option value="{{ session.id }}" {{ 'selected' if current_session == session.id|string }}>
+                            {{ session.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter me-1"></i>Filtrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row g-4 mb-4">
+        {% for session in sessions %}
+        <div class="col-lg-4 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ session.name }}</h5>
+                    <p class="card-text text-muted">
+                        {{ session.description or 'Session de concours' }}
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar me-1"></i>
+                            {{ session.start_date.strftime('%d/%m/%Y') }} - {{ session.end_date.strftime('%d/%m/%Y') }}
+                        </small>
+                    </div>
+                    
+                    {% set accepted_count = session.applications | selectattr('status', 'equalto', 'accepted') | list | length %}
+                    {% set published_count = session.results | selectattr('published_at') | list | length %}
+                    
+                    <div class="row text-center mb-3">
+                        <div class="col-6">
+                            <div class="stat-mini">
+                                <div class="stat-number text-success">{{ accepted_count }}</div>
+                                <div class="stat-label">Candidats admis</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-mini">
+                                <div class="stat-number text-info">{{ published_count }}</div>
+                                <div class="stat-label">Résultats publiés</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if accepted_count > 0 %}
+                    <form method="POST" action="{{ url_for('admin.publish_results', session_id=session.id) }}" class="d-inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="btn btn-success btn-sm w-100" 
+                                onclick="return confirm('Êtes-vous sûr de vouloir publier les résultats de cette session ?')">
+                            <i class="fas fa-bullhorn me-1"></i>
+                            {{ 'Republier les résultats' if published_count > 0 else 'Publier les résultats' }}
+                        </button>
+                    </form>
+                    {% else %}
+                    <button class="btn btn-secondary btn-sm w-100" disabled>
+                        <i class="fas fa-info-circle me-1"></i>Aucun candidat admis
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Results Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-list me-2"></i>Résultats publiés
+                <span class="badge bg-secondary ms-2">{{ results.total }} résultat(s)</span>
+            </h5>
+        </div>
+        
+        <div class="card-body p-0">
+            {% if results.items %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Candidat</th>
+                            <th>Formation</th>
+                            <th>Session</th>
+                            <th>Statut</th>
+                            <th>Rang</th>
+                            <th>Date publication</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in results.items %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="candidate-avatar me-3">
+                                        <i class="fas fa-user-circle"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">{{ result.application.first_name }} {{ result.application.last_name }}</h6>
+                                        <small class="text-muted">
+                                            <i class="fas fa-id-card me-1"></i>{{ result.application.application_number }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="fw-medium">{{ result.application.formation.name }}</span>
+                            </td>
+                            <td>
+                                <span class="text-muted">{{ result.session.name }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if result.is_selected else 'danger' }}">
+                                    {% if result.is_selected %}
+                                        <i class="fas fa-check me-1"></i>ADMIS
+                                    {% else %}
+                                        <i class="fas fa-times me-1"></i>NON ADMIS
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                {% if result.rank %}
+                                <span class="badge bg-primary">{{ result.rank }}</span>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if result.published_at %}
+                                <span class="text-muted">{{ result.published_at.strftime('%d/%m/%Y') }}</span><br>
+                                <small class="text-muted">{{ result.published_at.strftime('%H:%M') }}</small>
+                                {% else %}
+                                <span class="text-muted">Non publié</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ url_for('admin.application_detail', id=result.application.id) }}" class="btn btn-outline-primary" title="Voir candidature">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="btn btn-outline-info" onclick="editResult({{ result.id }})" title="Modifier résultat">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if results.pages > 1 %}
+            <div class="card-footer bg-white">
+                <nav aria-label="Pagination des résultats">
+                    <ul class="pagination justify-content-center mb-0">
+                        {% if results.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('admin.results', page=results.prev_num, session=current_session) }}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for page_num in results.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num != results.page %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('admin.results', page=page_num, session=current_session) }}">{{ page_num }}</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                                {% endif %}
+                            {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if results.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('admin.results', page=results.next_num, session=current_session) }}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+            
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-trophy display-4 text-muted mb-3"></i>
+                <h5 class="text-muted">Aucun résultat publié</h5>
+                <p class="text-muted">Les résultats apparaîtront ici après publication.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Edit Result Modal -->
+<div class="modal fade" id="resultModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modifier le résultat</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="resultForm">
+                    <div class="mb-3">
+                        <label class="form-label">Rang (optionnel)</label>
+                        <input type="number" class="form-control" id="resultRank" min="1">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-control" id="resultNotes" rows="3" placeholder="Notes ou commentaires..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" id="saveResult">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentResultId = null;
+
+function editResult(resultId) {
+    currentResultId = resultId;
+    
+    // In a real implementation, you would fetch the current result data
+    document.getElementById('resultRank').value = '';
+    document.getElementById('resultNotes').value = '';
+    
+    const modal = new bootstrap.Modal(document.getElementById('resultModal'));
+    modal.show();
+}
+
+document.getElementById('saveResult').addEventListener('click', function() {
+    if (currentResultId) {
+        const rank = document.getElementById('resultRank').value;
+        const notes = document.getElementById('resultNotes').value;
+        
+        // In a real implementation, you would make an AJAX call here
+        alert('Fonctionnalité à implémenter: Mise à jour du résultat');
+        
+        bootstrap.Modal.getInstance(document.getElementById('resultModal')).hide();
+    }
+});
+</script>
+{% endblock %}

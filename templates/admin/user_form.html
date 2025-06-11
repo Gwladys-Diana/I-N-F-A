@@ -1,0 +1,230 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}{{ title }} - Administration INFA{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <!-- Page Header -->
+    <div class="mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Tableau de bord</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.users') }}">Utilisateurs</a></li>
+                <li class="breadcrumb-item active">{{ title }}</li>
+            </ol>
+        </nav>
+        <h1 class="h3 fw-bold">{{ title }}</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <form method="POST" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.username.id }}" class="form-label">{{ form.username.label.text }} <span class="text-danger">*</span></label>
+                            {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else "")) }}
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.username.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Le nom d'utilisateur doit être unique et contenir au moins 3 caractères</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.email.id }}" class="form-label">{{ form.email.label.text }} <span class="text-danger">*</span></label>
+                            {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else "")) }}
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.email.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Adresse email valide et unique</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.password.id }}" class="form-label">{{ form.password.label.text }} <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Minimum 6 caractères") }}
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            {% if form.password.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.password.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Le mot de passe doit contenir au moins 6 caractères</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-check">
+                                {{ form.is_super_admin(class="form-check-input" + (" is-invalid" if form.is_super_admin.errors else "")) }}
+                                <label class="form-check-label" for="{{ form.is_super_admin.id }}">
+                                    {{ form.is_super_admin.label.text }}
+                                </label>
+                                {% if form.is_super_admin.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.is_super_admin.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="form-text">Les super administrateurs peuvent gérer d'autres utilisateurs</div>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Enregistrer
+                            </button>
+                            <a href="{{ url_for('admin.users') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Retour
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Rôles et permissions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="role-info mb-4">
+                        <h6 class="fw-bold">
+                            <i class="fas fa-user me-2 text-info"></i>Administrateur
+                        </h6>
+                        <ul class="list-unstyled ps-3">
+                            <li><i class="fas fa-check text-success me-1"></i> Gérer les candidatures</li>
+                            <li><i class="fas fa-check text-success me-1"></i> Gérer les formations</li>
+                            <li><i class="fas fa-check text-success me-1"></i> Gérer les sessions</li>
+                            <li><i class="fas fa-check text-success me-1"></i> Gérer les actualités</li>
+                            <li><i class="fas fa-check text-success me-1"></i> Publier les résultats</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="role-info">
+                        <h6 class="fw-bold">
+                            <i class="fas fa-crown me-2 text-warning"></i>Super Administrateur
+                        </h6>
+                        <ul class="list-unstyled ps-3">
+                            <li><i class="fas fa-check text-success me-1"></i> Toutes les permissions administrateur</li>
+                            <li><i class="fas fa-check text-success me-1"></i> Gérer les utilisateurs</li>
+                            <li><i class="fas fa-check text-success me-1"></i> Créer d'autres super admins</li>
+                            <li><i class="fas fa-check text-success me-1"></i> Accès système complet</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="alert alert-warning border-0 mt-3">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Attention:</strong> Accordez les droits de super administrateur uniquement aux utilisateurs de confiance.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle password visibility
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        const passwordField = document.getElementById('{{ form.password.id }}');
+        const icon = this.querySelector('i');
+        
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            icon.className = 'fas fa-eye-slash';
+        } else {
+            passwordField.type = 'password';
+            icon.className = 'fas fa-eye';
+        }
+    });
+    
+    // Password strength indicator
+    const passwordField = document.getElementById('{{ form.password.id }}');
+    const strengthIndicator = document.createElement('div');
+    strengthIndicator.className = 'password-strength mt-2';
+    passwordField.parentNode.parentNode.appendChild(strengthIndicator);
+    
+    passwordField.addEventListener('input', function() {
+        const password = this.value;
+        let strength = 0;
+        let feedback = [];
+        
+        if (password.length >= 6) strength++;
+        else feedback.push('Au moins 6 caractères');
+        
+        if (/[a-z]/.test(password)) strength++;
+        else feedback.push('Une lettre minuscule');
+        
+        if (/[A-Z]/.test(password)) strength++;
+        else feedback.push('Une lettre majuscule');
+        
+        if (/[0-9]/.test(password)) strength++;
+        else feedback.push('Un chiffre');
+        
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+        else feedback.push('Un caractère spécial');
+        
+        const strengthLevels = ['Très faible', 'Faible', 'Moyen', 'Fort', 'Très fort'];
+        const strengthColors = ['danger', 'warning', 'info', 'success', 'success'];
+        
+        if (password.length > 0) {
+            strengthIndicator.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <small class="text-muted me-2">Force:</small>
+                    <span class="badge bg-${strengthColors[strength]}">
+                        ${strengthLevels[strength]}
+                    </span>
+                </div>
+                ${feedback.length > 0 ? `<small class="text-muted">Manque: ${feedback.join(', ')}</small>` : ''}
+            `;
+        } else {
+            strengthIndicator.innerHTML = '';
+        }
+    });
+    
+    // Form validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const username = document.getElementById('{{ form.username.id }}').value.trim();
+        const email = document.getElementById('{{ form.email.id }}').value.trim();
+        const password = document.getElementById('{{ form.password.id }}').value;
+        
+        if (!username || !email || !password) {
+            e.preventDefault();
+            alert('Tous les champs obligatoires doivent être remplis.');
+            return false;
+        }
+        
+        if (username.length < 3) {
+            e.preventDefault();
+            alert('Le nom d\'utilisateur doit contenir au moins 3 caractères.');
+            return false;
+        }
+        
+        if (password.length < 6) {
+            e.preventDefault();
+            alert('Le mot de passe doit contenir au moins 6 caractères.');
+            return false;
+        }
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            e.preventDefault();
+            alert('Veuillez entrer une adresse email valide.');
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,296 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Gestion des utilisateurs - Administration INFA{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold">Gestion des utilisateurs</h1>
+            <p class="text-muted">Gérer les comptes administrateurs</p>
+        </div>
+        <a href="{{ url_for('admin.add_user') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Nouvel utilisateur
+        </a>
+    </div>
+
+    <!-- Users List -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="fas fa-users me-2"></i>Liste des utilisateurs
+                <span class="badge bg-secondary ms-2">{{ users|length }} utilisateur(s)</span>
+            </h5>
+        </div>
+        
+        <div class="card-body p-0">
+            {% if users %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Utilisateur</th>
+                            <th>Email</th>
+                            <th>Rôle</th>
+                            <th>Dernière connexion</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="user-avatar me-3">
+                                        <i class="fas fa-user-circle"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1 fw-medium">{{ user.username }}</h6>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            Créé le {{ user.created_at.strftime('%d/%m/%Y') }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="fw-medium">{{ user.email }}</span>
+                            </td>
+                            <td>
+                                {% if user.is_super_admin %}
+                                <span class="badge bg-warning">
+                                    <i class="fas fa-crown me-1"></i>Super Admin
+                                </span>
+                                {% else %}
+                                <span class="badge bg-info">
+                                    <i class="fas fa-user me-1"></i>Administrateur
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if user.last_login %}
+                                <span class="text-muted">{{ user.last_login.strftime('%d/%m/%Y') }}</span><br>
+                                <small class="text-muted">{{ user.last_login.strftime('%H:%M') }}</small>
+                                {% else %}
+                                <span class="text-muted">Jamais connecté</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if user.is_active else 'secondary' }}">
+                                    {% if user.is_active %}
+                                        <i class="fas fa-check me-1"></i>Actif
+                                    {% else %}
+                                        <i class="fas fa-pause me-1"></i>Inactif
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-info" onclick="viewUser({{ user.id }})" title="Voir détails">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    
+                                    {% if user.id != current_user.id %}
+                                    <a href="{{ url_for('admin.toggle_user_status', id=user.id) }}" 
+                                       class="btn btn-outline-{{ 'secondary' if user.is_active else 'success' }}" 
+                                       title="{{ 'Désactiver' if user.is_active else 'Activer' }}"
+                                       onclick="return confirm('Êtes-vous sûr de vouloir {{ 'désactiver' if user.is_active else 'activer' }} cet utilisateur ?')">
+                                        <i class="fas fa-{{ 'pause' if user.is_active else 'play' }}"></i>
+                                    </a>
+                                    
+                                    <button class="btn btn-outline-warning" onclick="resetPassword({{ user.id }})" title="Réinitialiser mot de passe">
+                                        <i class="fas fa-key"></i>
+                                    </button>
+                                    
+                                    {% if not user.is_super_admin or current_user.is_super_admin %}
+                                    <button class="btn btn-outline-danger" onclick="deleteUser({{ user.id }})" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    {% endif %}
+                                    {% else %}
+                                    <span class="badge bg-primary">Vous</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-users display-4 text-muted mb-3"></i>
+                <h5 class="text-muted">Aucun utilisateur</h5>
+                <p class="text-muted">La liste des utilisateurs est vide.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- User Details Modal -->
+<div class="modal fade" id="userModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Détails de l'utilisateur</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="userDetails">
+                    <!-- User details will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Password Reset Modal -->
+<div class="modal fade" id="passwordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Réinitialiser le mot de passe</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Générer un nouveau mot de passe temporaire pour cet utilisateur ?</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    L'utilisateur devra changer son mot de passe lors de sa prochaine connexion.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-warning" id="confirmPasswordReset">Réinitialiser</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.</p>
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Toutes les données associées à cet utilisateur seront perdues.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Supprimer</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const users = {{ users_data | tojson }};
+let currentUserId = null;
+
+function viewUser(userId) {
+    const user = users.find(u => u.id === userId);
+    if (!user) return;
+    
+    const detailsHtml = `
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label text-muted">Nom d'utilisateur</label>
+                <p class="fw-medium">${user.username}</p>
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label text-muted">Email</label>
+                <p class="fw-medium">${user.email}</p>
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label text-muted">Rôle</label>
+                <p class="fw-medium">
+                    ${user.is_super_admin ? 
+                        '<span class="badge bg-warning"><i class="fas fa-crown me-1"></i>Super Administrateur</span>' : 
+                        '<span class="badge bg-info"><i class="fas fa-user me-1"></i>Administrateur</span>'
+                    }
+                </p>
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label text-muted">Statut</label>
+                <p class="fw-medium">
+                    <span class="badge bg-${user.is_active ? 'success' : 'secondary'}">
+                        ${user.is_active ? 'Actif' : 'Inactif'}
+                    </span>
+                </p>
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label text-muted">Date de création</label>
+                <p class="fw-medium">${new Date(user.created_at).toLocaleDateString('fr-FR')}</p>
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label text-muted">Dernière connexion</label>
+                <p class="fw-medium">${user.last_login ? new Date(user.last_login).toLocaleDateString('fr-FR') + ' à ' + new Date(user.last_login).toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'}) : 'Jamais connecté'}</p>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('userDetails').innerHTML = detailsHtml;
+    
+    const modal = new bootstrap.Modal(document.getElementById('userModal'));
+    modal.show();
+}
+
+function resetPassword(userId) {
+    currentUserId = userId;
+    const modal = new bootstrap.Modal(document.getElementById('passwordModal'));
+    modal.show();
+}
+
+function deleteUser(userId) {
+    currentUserId = userId;
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    modal.show();
+}
+
+document.getElementById('confirmPasswordReset').addEventListener('click', function() {
+    if (currentUserId) {
+        // In a real implementation, you would make an AJAX call here
+        alert('Fonctionnalité à implémenter: Réinitialisation du mot de passe');
+        bootstrap.Modal.getInstance(document.getElementById('passwordModal')).hide();
+    }
+});
+
+document.getElementById('confirmDelete').addEventListener('click', function() {
+    if (currentUserId) {
+        // Create a form to delete the user
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/users/${currentUserId}/delete`;
+        
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrf_token';
+        csrfInput.value = '{{ csrf_token() }}';
+        
+        form.appendChild(csrfInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+});
+</script>
+{% endblock %}
